@@ -134,3 +134,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# oauth
+node_modules/
+*.js
