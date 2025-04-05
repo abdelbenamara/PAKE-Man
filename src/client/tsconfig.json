@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    /* Type Checking */
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    /* Modules */
+    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@pake-man/public/*": ["/*"],
+      "@pake-man/ui/*": ["./*"]
+    },
+    "resolveJsonModule": true,
+    /* Emit */
+    "noEmit": true,
+    /* JavaScript Support */
+    "allowJs": false,
+    /* Editor Support */
+    "plugins": [{ "name": "ts-lit-plugin", "strict": true }],
+    /* Interop Constraints */
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    /* Backwards Compatibility */
+    "noStrictGenericChecks": false,
+    /* Language and Environment */
+    "experimentalDecorators": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "moduleDetection": "force",
+    "target": "ESNext",
+    "useDefineForClassFields": false,
+    /* Completeness */
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["**/*.test.ts"]
+}
