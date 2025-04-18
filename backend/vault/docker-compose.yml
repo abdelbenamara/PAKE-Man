@@ -1,0 +1,64 @@
+# services:
+#   vault:
+#     image: hashicorp/vault:latest
+#     container_name: vault
+#     # ports:
+#     #   - "8200:8200"
+#     environment:
+#       #VAULT_DEV_ROOT_TOKEN_ID: "root"
+#       VAULT_ADDR: "https://0.0.0.0:8201"
+#       #VAULT_API_ADDR: "http://0.0.0.0:8200"
+#       #VAULT_ADDRESS: "http://0.0.0.0:8200"
+#     ports:
+#       #- "8200:8200"
+#       - "8201:8201"
+#     restart: always
+#     volumes:
+#       - ./logs:/vault/logs/:rw
+#       - ./data:/vault/data/:rw
+#       - ./config:/vault/config/:rw
+#       - ./certs:/certs/:rw
+#       - ./file:/vault/file/:rw
+#       - ./vault-volume:/data:rw
+#     healthcheck:
+#       retries: 5
+#     cap_add:
+#       - IPC_LOCK
+#     command: ./data/workflow-vault.sh
+#     #entrypoint: vault server -config /vault/config/config.hcl
+#     # command: server -dev # to change maybe to vault operator init
+#     # volumes:
+#     #   - ./vault-data:/vault/file
+services:
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
+    environment:
+      VAULT_ADDR: "https://127.0.0.1:8200"
+    ports:
+      - "8200:8200"
+      - "8201:8201"
+    #restart: always
+    restart: unless-stopped
+    # healthcheck:
+    #   retries: 5
+    volumes:
+      - ./logs:/vault/logs/:rw
+      - ./config:/vault/config:rw
+      - ./certs:/certs:rw
+      - ./data:/vault/data/:rw
+      - ./file:/vault/file/:rw
+      - ./tools:/vault/tools:rw
+      # - ./vault-volume:/data:rw
+    cap_add:
+      - IPC_LOCK
+    entrypoint: /bin/sh /vault/tools/workflow-vault.sh
+    command: server -config=/vault/config/config.hcl
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  data:
