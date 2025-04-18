@@ -1,0 +1,81 @@
+services:
+  elasticsearch:
+    image: elasticsearch:7.16.2
+    container_name: elasticsearch
+    restart: always
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data/
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      discovery.type: single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - elk
+    healthcheck:
+      test: curl -f http://localhost:9200 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  logstash:
+    image: logstash:7.16.2
+    container_name: logstash
+    restart: always
+    volumes:
+      - ./logstash/:/usr/share/logstash/logstash_dir
+    command: logstash -f /logstash_dir/config/logstash.conf
+    depends_on:
+      - elasticsearch
+    ports:
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+
+  kibana:
+    image: kibana:7.16.2
+    container_name: kibana
+    restart: always
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+    volumes:
+      - ./kibana/:/usr/share/kibana/kibana_dir
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  # Index Lifecycle Management: data retention and archiving policies, to check: GET _ilm/policy
+  # http://localhost:5601/app/dev_tools#/console
+  setup-ilm:
+    # build: ./init
+    # environment:
+    #   - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    # depends_on:
+    #   elasticsearch:
+    #     condition: service_healthy
+    # networks:
+    #   - elk
+
+    image: curlimages/curl:latest
+    volumes:
+      - ./init:/init:rw
+    entrypoint: ["/bin/sh", "-c", "/init/setup.sh"]
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+volumes:
+  elastic_data: {}
+
+networks:
+  elk:
