@@ -1,13 +1,19 @@
 services:
   elasticsearch:
-    image: elasticsearch:7.16.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
     container_name: elasticsearch
     restart: always
     volumes:
       - elastic_data:/usr/share/elasticsearch/data/
+      - ./certs:/usr/share/elasticsearch/config/certs
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       discovery.type: single-node
+      xpack.security.enabled: true
+      xpack.security.http.ssl.enabled: true
+      xpack.security.http.ssl.key: /usr/share/elasticsearch/config/certs/elasticsearch/elasticsearch.key
+      xpack.security.http.ssl.certificate: /usr/share/elasticsearch/config/certs/elasticsearch/elasticsearch.crt
+      xpack.security.http.ssl.certificate_authorities: /usr/share/elasticsearch/config/certs/ca/ca.crt
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -21,11 +27,13 @@ services:
 
 
   logstash:
-    image: logstash:7.16.2
+    image: docker.elastic.co/logstash/logstash:7.16.2
     container_name: logstash
     restart: always
     volumes:
       - ./logstash/:/usr/share/logstash/logstash_dir
+      - ./certs:/usr/share/logstash/config/certs
+      - ./logstash/:/usr/share/logstash/pipeline
     command: logstash -f /logstash_dir/config/logstash.conf
     depends_on:
       - elasticsearch
@@ -33,20 +41,28 @@ services:
       - "9600:9600"
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_USERNAME: elastic
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     networks:
       - elk
 
   kibana:
-    image: kibana:7.16.2
+    image: docker.elastic.co/kibana/kibana:7.16.2
     container_name: kibana
     restart: always
     ports:
       - "5601:5601"
     environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+      ELASTICSEARCH_HOSTS: https://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD}
+      KIBANA_PASSWORD: ${KIBANA_PASSWORD}
+      ELASTICSEARCH_SSL_VERIFICATIONMODE: certificate
+      ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES: /usr/share/kibana/config/certs/ca/ca.crt
+      SERVER_SSL_ENABLED: false # not needed because we are going to access kibana behind a reverse proxy that handles https
     volumes:
       - ./kibana/:/usr/share/kibana/kibana_dir
+      - ./certs:/usr/share/kibana/config/certs
     depends_on:
       - elasticsearch
     networks:
