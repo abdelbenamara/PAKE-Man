@@ -1,18 +1,23 @@
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    hostname: elasticsearch
     container_name: elasticsearch
     restart: always
     volumes:
       - elastic_data:/usr/share/elasticsearch/data/
-      - ./certs:/usr/share/elasticsearch/config/certs
+      - ./certs/ca:${ELASTIC_DIR}/config/certs/ca
+      - ./certs/elasticsearch:${ELASTIC_DIR}/config/certs/
+      - ./certs/ca:${LOGSTASH_DIR}/config/certs/ca
+      - ./certs/logstash:${LOGSTASH_DIR}/config/certs/
     environment:
+      CONFIG_DIR: ${ELASTIC_DIR}/config
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       discovery.type: single-node
       xpack.security.enabled: true
       xpack.security.http.ssl.enabled: true
-      xpack.security.http.ssl.key: /usr/share/elasticsearch/config/certs/elasticsearch/elasticsearch.key
-      xpack.security.http.ssl.certificate: /usr/share/elasticsearch/config/certs/elasticsearch/elasticsearch.crt
+      xpack.security.http.ssl.key: /usr/share/elasticsearch/config/certs/elasticsearch.key
+      xpack.security.http.ssl.certificate: /usr/share/elasticsearch/config/certs/elasticsearch.crt
       xpack.security.http.ssl.certificate_authorities: /usr/share/elasticsearch/config/certs/ca/ca.crt
     ports:
       - "9200:9200"
@@ -20,28 +25,34 @@ services:
     networks:
       - elk
     healthcheck:
-      test: curl -f http://localhost:9200 || exit 1
+      test: ["CMD", "curl", "--cacert", "/usr/share/elasticsearch/config/certs/ca/ca.crt", "-u", "elastic:${ELASTIC_PASSWORD}", "https://localhost:9200"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
+# change all the paths to be coherent
   logstash:
     image: docker.elastic.co/logstash/logstash:7.16.2
     container_name: logstash
+    hostname: logstash
     restart: always
     volumes:
-      - ./logstash/:/usr/share/logstash/logstash_dir
-      - ./certs:/usr/share/logstash/config/certs
-      - ./logstash/:/usr/share/logstash/pipeline
-    command: logstash -f /logstash_dir/config/logstash.conf
+      - ./certs/ca:${LOGSTASH_DIR}/config/certs/ca
+      - ./certs/logstash:${LOGSTASH_DIR}/config/certs/
+      - ./logstash/pipeline/logstash.conf:${LOGSTASH_DIR}/pipeline/logstash.conf
+      - ./logstash/config/logstash.yml:${LOGSTASH_DIR}/config/logstash.yml
+      - ./logstash/config/pipelines.yml:${LOGSTASH_DIR}/pipelines.yml
+      - ./logstash/inlog.log:${LOGSTASH_DIR}/inlog.log
+    command: logstash -f ${LOGSTASH_DIR}/pipeline/logstash.conf
     depends_on:
       - elasticsearch
+      - kibana
     ports:
       - "9600:9600"
     environment:
+      CONFIG_DIR: ${LOGSTASH_DIR}/config
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_USERNAME: elastic
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     networks:
       - elk
@@ -53,16 +64,28 @@ services:
     ports:
       - "5601:5601"
     environment:
+
+      server.ssl.certificate: "${KIBANA_DIR}/config/certs/kibana.crt"
+
+      CONFIG_DIR: ${KIBANA_DIR}/config
+      KIBANA_URL: ${KIBANA_URL}
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      server.name: kibana
+      server.host: "0.0.0.0"
+      elasticsearch.username: "elastic"
+      XPACK_SECURITY_ENABLED: "true"
+      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: "aReallyLongRandomStringWith32+Characters"
       ELASTICSEARCH_HOSTS: https://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: elastic
-      ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD}
       KIBANA_PASSWORD: ${KIBANA_PASSWORD}
-      ELASTICSEARCH_SSL_VERIFICATIONMODE: certificate
-      ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES: /usr/share/kibana/config/certs/ca/ca.crt
-      SERVER_SSL_ENABLED: false # not needed because we are going to access kibana behind a reverse proxy that handles https
+      ELASTICSEARCH_SSL_VERIFICATIONMODE: "certificate"
+      ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES: ${KIBANA_DIR}/config/certs/ca/ca.crt
+      SERVER_SSL_ENABLED: "false" # not needed because we are going to access kibana behind a reverse proxy that handles https
     volumes:
-      - ./kibana/:/usr/share/kibana/kibana_dir
-      - ./certs:/usr/share/kibana/config/certs
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - ./certs/ca:/usr/share/kibana/config/certs/ca
+      - ./certs/kibana:/usr/share/kibana/config/certs/
     depends_on:
       - elasticsearch
     networks:
@@ -71,15 +94,6 @@ services:
   # Index Lifecycle Management: data retention and archiving policies, to check: GET _ilm/policy
   # http://localhost:5601/app/dev_tools#/console
   setup-ilm:
-    # build: ./init
-    # environment:
-    #   - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-    # depends_on:
-    #   elasticsearch:
-    #     condition: service_healthy
-    # networks:
-    #   - elk
-
     image: curlimages/curl:latest
     volumes:
       - ./init:/init:rw

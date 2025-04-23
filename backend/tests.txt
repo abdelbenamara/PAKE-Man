@@ -1,0 +1,16 @@
+Generate the right certifs:
+
+docker run --rm \
+  -v $(pwd)/certs:/certs \
+  -v $(pwd)/instances.yml:/usr/share/elasticsearch/instances.yml \
+  docker.elastic.co/elasticsearch/elasticsearch:7.16.2 \
+  bin/elasticsearch-certutil cert --silent --in /usr/share/elasticsearch/instances.yml --out /certs/certs.zip --pem
+
+
+unzip -o certs/certs.zip -d certs/
+
+set the passwords (I did it like this but eventually to change)
+
+./bin/elasticsearch-setup-passwords interactive --url https://elasticsearch:9200
+
+

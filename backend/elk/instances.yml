@@ -1,0 +1,19 @@
+instances:
+  - name: elasticsearch
+    dns:
+      - elasticsearch
+    ip:
+      - 127.0.0.1
+      - '0.0.0.0'
+  - name: logstash
+    dns:
+      - logstash
+    ip:
+      - 127.0.0.1
+      - '0.0.0.0'
+  - name: kibana
+    dns:
+      - kibana
+    ip:
+      - 127.0.0.1
+      - '0.0.0.0'
