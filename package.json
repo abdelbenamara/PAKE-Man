@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "@babylonjs/gui": "^8.4.0",
+    "@babylonjs/loaders": "^8.4.0",
+    "vite": "^6.3.3"
+  },
+  "devDependencies": {
+    "@babylonjs/core": "^8.4.0"
+  },
+  "name": "pake-man_game",
+  "description": "42 ft_transcendence project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abdelbenamara/PAKE-Man.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abdelbenamara/PAKE-Man/issues"
+  },
+  "homepage": "https://github.com/abdelbenamara/PAKE-Man#readme"
+}
