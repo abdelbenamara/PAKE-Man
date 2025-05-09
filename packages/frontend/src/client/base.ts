@@ -1,21 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lint-staged.config.js                              :+:      :+:    :+:   */
+/*   base.ts                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/12 18:09:31 by abenamar          #+#    #+#             */
-/*   Updated: 2025/04/05 09:47:20 by abenamar         ###   ########.fr       */
+/*   Created: 2025/03/11 17:21:47 by abenamar          #+#    #+#             */
+/*   Updated: 2025/05/09 13:00:13 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-/**
- * @type {import('lint-staged').Configuration}
- */
-export default {
-  "!(*.js|*.ts|.prettierignore)": "prettier --write",
-  "*.{js,ts}": ["eslint --fix", "prettier --write"],
-  "**/client/**/*.ts": () => "tsc -p src/client --noEmit",
-  "!(**/client/**/*).ts": () => "tsc -p . --noEmit",
-};
+import { html } from "lit";
+
+export function createApp() {
+  return html`<canvas id="app" class="m-0 h-full w-full p-0"></canvas>`;
+}

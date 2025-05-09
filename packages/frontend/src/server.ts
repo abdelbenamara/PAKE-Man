@@ -1,17 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   app.ts                                             :+:      :+:    :+:   */
+/*   server.ts                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:51:41 by abenamar          #+#    #+#             */
-/*   Updated: 2025/03/14 16:54:48 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/05/08 22:19:22 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import FastifyVite from "@fastify/vite";
-import closeWithGrace from "close-with-grace";
 import "dotenv/config";
 import Fastify from "fastify";
 import { resolve } from "node:path";
@@ -48,24 +47,8 @@ server.get("/", (_req, reply) => {
 
 await server.vite.ready();
 
-closeWithGrace(
-  {
-    delay: parseInt(process.env.FASTIFY_CLOSE_GRACE_DELAY as string),
-    logger: server.log,
-  },
-  async ({ signal, err }) => {
-    if (err) {
-      server.log.error({ err }, "server closing with error");
-    } else {
-      server.log.info(`${signal} received, server closing`);
-    }
-
-    await server.close();
-  },
-);
-
 server.listen(
-  { port: parseInt(process.env.PORT as string) },
+  { host: process.env.HOST, port: parseInt(process.env.PORT!) },
   (err, address) => {
     if (err) {
       server.log.error(err);

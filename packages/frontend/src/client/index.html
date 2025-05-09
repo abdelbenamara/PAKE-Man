@@ -10,26 +10,11 @@
         display: none;
       }
     </style>
-
     <!-- head -->
   </head>
-
   <body dsd-pending>
-    <script>
-      if (
-        Object.prototype.hasOwnProperty.call(
-          HTMLTemplateElement.prototype,
-          "shadowRoot",
-        )
-      ) {
-        document.body.removeAttribute("dsd-pending");
-      }
-    </script>
-
     <!-- hydration -->
-
-    <div id="root"><!-- element --></div>
-
+    <div id="root" class="m-0 h-screen w-screen p-0"><!-- element --></div>
     <script type="module" src="mount.ts"></script>
   </body>
 </html>

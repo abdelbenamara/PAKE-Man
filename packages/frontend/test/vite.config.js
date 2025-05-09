@@ -6,11 +6,11 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 08:56:20 by abenamar          #+#    #+#             */
-/*   Updated: 2025/03/28 11:51:02 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/05/09 14:36:03 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { join } from "node:path";
+import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -18,12 +18,15 @@ import tsconfigPaths from "vite-tsconfig-paths";
  * @type {import('vite').UserConfig}
  */
 export default defineConfig({
-  root: join(import.meta.dirname, "..", "src", "client"),
+  root: resolve(import.meta.dirname, "..", "src", "client"),
   plugins: [tsconfigPaths()],
+  esbuild: {
+    supported: {
+      "top-level-await": true,
+    },
+  },
   build: {
-    target: "esnext",
-    outDir: join(import.meta.dirname, "dist"),
-    sourcemap: "hidden",
+    outDir: resolve(import.meta.dirname, "dist"),
     rollupOptions: {
       output: {
         preserveModules: true,
@@ -32,8 +35,5 @@ export default defineConfig({
     },
     ssr: "./index.ts",
     emptyOutDir: true,
-  },
-  ssr: {
-    external: ["fastify"],
   },
 });

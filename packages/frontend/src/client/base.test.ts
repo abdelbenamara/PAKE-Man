@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   my-element.test.ts                                 :+:      :+:    :+:   */
+/*   base.test.ts                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/24 19:23:50 by abenamar          #+#    #+#             */
-/*   Updated: 2025/03/28 18:24:48 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/05/09 13:00:09 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,36 +17,31 @@ import {
   ssrNonHydratedFixture,
 } from "@lit-labs/testing/fixtures.js";
 import { assert } from "@open-wc/testing";
-import { html } from "lit";
+import { createApp } from "./base.ts";
 
 afterEach("render", () => {
   cleanupFixtures();
 });
 
-describe(`Component rendered with csrFixture`, () => {
-  it("renders my-element as expected", async () => {
-    const el = await csrFixture(html`<my-element></my-element>`, {
-      modules: ["./my-element.ts"],
-      base: import.meta.url,
-    });
-    assert.equal(
-      el.shadowRoot?.querySelector("h1")?.textContent,
-      "Hello world!",
-    );
-  });
-});
+const fixtureModulesMap = new Map([[csrFixture, ["./base.ts"]]]);
 
-for (const fixture of [ssrNonHydratedFixture, ssrHydratedFixture]) {
+for (const fixture of [ssrHydratedFixture, ssrNonHydratedFixture]) {
+  fixtureModulesMap.set(fixture, ["/test/dist/client/base.js"]);
+}
+
+for (const [fixture, modules] of fixtureModulesMap) {
   describe(`Component rendered with ${fixture.name}`, () => {
-    it("renders my-element as expected", async () => {
-      const el = await fixture(html`<my-element></my-element>`, {
-        modules: ["/test/dist/client/components/my-element.js"],
+    it("renders app as expected", async () => {
+      await fixture(createApp(), {
+        modules,
         base: import.meta.url,
       });
+
       assert.equal(
-        el.shadowRoot?.querySelector("h1")?.textContent,
-        "Hello world!",
+        document.querySelector("canvas")?.className,
+        "m-0 h-full w-full p-0",
       );
+      assert.instanceOf(document.getElementById("app"), HTMLCanvasElement);
     });
   });
 }
