@@ -1,0 +1,13 @@
+name: pake-man
+
+services:
+  frontend:
+    build:
+      context: .
+    restart: always
+    environment:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: ${SERVER_PORT}
+      SERVER_CLOSE_GRACE_DELAY: ${SERVER_CLOSE_GRACE_DELAY}
+    ports:
+      - 3000:3000

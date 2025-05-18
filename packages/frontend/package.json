@@ -4,24 +4,24 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "prepare": "cp template.env .env",
+    "prepare": "[ \"production\" = \"${NODE_ENV}\" ] || ./scripts/setup.sh",
     "lint": "prettier . --write && eslint . --fix",
-    "build:client": "tsc --project src/client && vite build",
-    "build:server": "tsc",
-    "build:test": "tsc --project src/client && vite build --config test/vite.config.js",
-    "build": "npm run lint && npm run build:client && npm run build:server",
-    "test": "npm run build:test && playwright install && web-test-runner",
+    "build": "npm run lint && tsc --project src/client && vite build && tsc",
+    "test": "tsc --project src/client && vite build --config test/vite.config.js && playwright install && web-test-runner",
     "dev": "npm run build && node dist/server.js --dev",
     "debug": "node --inspect dist/server.js",
     "start": "node dist/server.js"
   },
   "dependencies": {
+    "@fastify/one-line-logger": "^2.0.2",
     "@fastify/vite": "~8.1.3",
     "@lit-labs/ssr": "~3.3.1",
+    "@lit-labs/ssr-client": "^1.1.7",
     "@webcomponents/template-shadowroot": "~0.2.1",
+    "close-with-grace": "^2.2.0",
     "devalue": "~5.1.1",
     "dotenv": "~16.5.0",
-    "lit": "~3.3.0"
+    "lit-html": "^3.3.0"
   },
   "devDependencies": {
     "@babylonjs/core": "~8.7.0",
@@ -35,8 +35,10 @@
     "@types/node": "~22.15.17",
     "@web/test-runner": "~0.20.1",
     "@web/test-runner-playwright": "~0.11.0",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-lit": "~2.1.1",
     "eslint-plugin-wc": "~3.0.1",
+    "neostandard": "^0.12.1",
     "postcss": "~8.5.3",
     "postcss-load-config": "~6.0.1",
     "prettier-plugin-tailwindcss": "~0.6.11",

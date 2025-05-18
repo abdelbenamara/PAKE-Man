@@ -6,11 +6,11 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 17:21:47 by abenamar          #+#    #+#             */
-/*   Updated: 2025/05/09 13:00:13 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/05/18 16:42:21 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { html } from "lit";
+import { html } from "lit-html";
 
 export function createApp() {
   return html`<canvas id="app" class="m-0 h-full w-full p-0"></canvas>`;
