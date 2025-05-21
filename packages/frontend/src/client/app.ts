@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 14:27:16 by abenamar          #+#    #+#             */
-/*   Updated: 2025/05/09 14:30:15 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/05/19 11:50:24 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
+import "./style.css";
 
 const canvas = document.getElementById("app");
 const engine = new Engine(canvas as HTMLCanvasElement, true);
@@ -32,9 +33,6 @@ const camera = new ArcRotateCamera(
   Vector3.Zero(),
   scene,
 );
-
-camera.attachControl(canvas, true);
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const light1 = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -50,7 +48,7 @@ window.addEventListener("keydown", (ev) => {
     }
   }
 });
-
+camera.attachControl(canvas, true);
 // run the main render loop
 engine.runRenderLoop(() => {
   scene.render();

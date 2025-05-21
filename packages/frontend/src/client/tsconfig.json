@@ -10,21 +10,15 @@
     /* Modules */
     "allowImportingTsExtensions": true,
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noResolve": false,
     "noUncheckedSideEffectImports": true,
-    "paths": {
-      "@pake-man/public/*": ["/*"],
-      "@pake-man/ui/*": ["./*"]
-    },
     "resolveJsonModule": true,
     /* Emit */
     "noEmit": true,
     "removeComments": true,
     /* JavaScript Support */
     "allowJs": false,
-    /* Editor Support */
-    "plugins": [{ "name": "ts-lit-plugin", "strict": true }],
     /* Interop Constraints */
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -40,6 +34,5 @@
     /* Completeness */
     "skipLibCheck": true
   },
-  "include": ["**/*.ts"],
-  "exclude": ["**/*.test.ts"]
+  "include": ["**/*.ts"]
 }
