@@ -23,8 +23,8 @@ touch package-lock.json \
 -v "$(pwd)/package.json:/package.json:ro" \
 -v "$(pwd)/package-lock.json:/package-lock.json" \
 node:22.15.0-alpine npm i --package-lock-only \
-&& ./setup.sh \
-&& docker compose build
+&& ./scripts/setup.sh \
+&& docker compose build [--no-cache]
 ```
 
 ## Usage
