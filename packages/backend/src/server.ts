@@ -6,13 +6,14 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/10 17:14:23 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/01 18:56:43 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/06/04 16:27:15 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import FastifyAutoLoadPlugin, {
   AutoloadPluginOptions as FastifyAutoloadPluginOptions,
 } from "@fastify/autoload";
+import FastifyHelmetPlugin, { FastifyHelmetOptions } from "@fastify/helmet";
 import FastifyRoutesStatsPlugin, {
   FastifyRoutesStatsOptions,
 } from "@fastify/routes-stats";
@@ -45,6 +46,9 @@ const server = Fastify({
   })
   .register(async (scope) => {
     scope
+      .register(FastifyHelmetPlugin, {
+        global: true,
+      } as FastifyHelmetOptions)
       .register(FastifyRoutesStatsPlugin, {
         printInterval: 60_000,
       } as FastifyRoutesStatsOptions)

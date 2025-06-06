@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -eo pipefail
+
+main() {
+  touch package-lock.json \
+  && docker run \
+    -e "NODE_ENV=production" \
+    -v "$(pwd)/package.json:/package.json:ro" \
+    -v "$(pwd)/package-lock.json:/package-lock.json" \
+    node:22.15.0-alpine npm i --package-lock-only \
+  && ./scripts/setup.sh \
+  && docker compose build --no-cache
+}
+
+main
+
+exit $?

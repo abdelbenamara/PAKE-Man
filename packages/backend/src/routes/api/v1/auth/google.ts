@@ -23,11 +23,11 @@ type GoogleUserInfo = {
 
 async function getUserFromGoogleInfo(
   fastify: FastifyInstance,
-  info: Readonly<GoogleUserInfo>
+  info: Readonly<GoogleUserInfo>,
 ) {
   if (!info.email_verified) {
     throw fastify.httpErrors.forbidden(
-      "Google sign-in require a verified email address"
+      "Google sign-in require a verified email address",
     );
   }
 
@@ -56,7 +56,7 @@ async function getUserFromGoogleInfo(
           email: info.email,
           name: "Player#" + (last.id + 1),
         },
-      })
+      }),
     );
   }
 
@@ -89,16 +89,16 @@ const google = (async (scope) => {
             const oauth2 =
               await scope.oauth2Google!.getAccessTokenFromAuthorizationCodeFlow(
                 req,
-                reply
+                reply,
               );
             const payload: jwt.UserInfo = Object.assign(
               {},
               await getUserFromGoogleInfo(
                 scope,
                 (await scope.oauth2Google!.userinfo(
-                  oauth2.token
-                )) as Readonly<GoogleUserInfo>
-              )
+                  oauth2.token,
+                )) as Readonly<GoogleUserInfo>,
+              ),
             );
             const accessToken = jwt.setAccessToken(scope, reply, payload);
             const csrfToken = reply.generateCsrf({ userInfo: payload.name });
@@ -107,10 +107,10 @@ const google = (async (scope) => {
           } catch (err) {
             return reply.send(err);
           }
-        }
+        },
       );
     },
-    { prefix: "/google" }
+    { prefix: "/google" },
   );
 }) as FastifyPluginAsync;
 

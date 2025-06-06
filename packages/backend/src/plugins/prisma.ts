@@ -23,7 +23,7 @@ export default fp(
 
     await scope.register(FastifyPrismaPlugin, { client });
   },
-  { name: "prisma" }
+  { name: "prisma" },
 );
 
 declare module "fastify" {

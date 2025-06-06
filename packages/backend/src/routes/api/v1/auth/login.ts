@@ -55,10 +55,10 @@ const login = (async (scope) => {
 
             return reply.send(err);
           }
-        }
+        },
       );
     },
-    { prefix: "/login" }
+    { prefix: "/login" },
   );
 }) as FastifyPluginAsync;
 

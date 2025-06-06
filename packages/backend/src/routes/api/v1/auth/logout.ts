@@ -33,10 +33,10 @@ const logout = (async (scope) => {
             .send({
               message: req.user.name + " successfully logged out.",
             });
-        }
+        },
       );
     },
-    { prefix: "/logout" }
+    { prefix: "/logout" },
   );
 }) as FastifyPluginAsync;
 

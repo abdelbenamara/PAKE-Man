@@ -33,7 +33,7 @@ const refresh = (async (scope) => {
                 where: {
                   name: req.user.name,
                 },
-              })
+              }),
             );
             const accessToken = jwt.setAccessToken(scope, reply, payload);
 
@@ -41,10 +41,10 @@ const refresh = (async (scope) => {
           } catch (err) {
             return reply.send(err);
           }
-        }
+        },
       );
     },
-    { prefix: "/refresh" }
+    { prefix: "/refresh" },
   );
 }) as FastifyPluginAsync;
 

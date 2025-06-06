@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 10:56:21 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/01 19:56:03 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/06/06 19:15:48 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,9 @@ export default fp(
       discovery: {
         issuer: "https://accounts.google.com",
       },
-      redirectStateCookieName: "__Secure-google-oauth2-redirect-state",
-      verifierCookieName: "__Secure-google-oauth2-code-verifier",
+      redirectStateCookieName: "x__Secure-google-oauth2-redirect-state",
+      verifierCookieName: "x__Secure-google-oauth2-code-verifier",
     } as FastifyOAuth2Options);
   },
-  { name: "oauth2", dependencies: ["cookie", "swagger"] },
+  { name: "oauth2", dependencies: ["cookie", "swagger"] }
 );

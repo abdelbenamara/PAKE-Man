@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 14:38:00 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/01 18:51:28 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/06/06 19:16:39 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,17 +21,17 @@ export namespace jwt {
     "picture" | "email" | "name" | "created_at"
   >;
 
-  export const accessTokenCookieName = "__Host-access-token";
-  export const refreshTokenCookieName = "__Host-refresh-token";
+  export const accessTokenCookieName = "x__Host-access-token";
+  export const refreshTokenCookieName = "x__Host-refresh-token";
   export const setAccessToken = (
     fastify: FastifyInstance,
     reply: FastifyReply,
-    payload: jwt.UserInfo,
+    payload: jwt.UserInfo
   ) => {
     const accessToken = fastify.jwt.sign(payload);
     const refreshToken = fastify.jwt.sign(
       { name: payload.name },
-      { expiresIn: "1d" },
+      { expiresIn: "1d" }
     );
     const secondsIn1Day = 86_400;
     const epochIn1Day = Date.now() + secondsIn1Day * 1_000;
@@ -66,7 +66,7 @@ export default fp(
           } catch (err) {
             return reply.send(err);
           }
-        },
+        }
       )
       .decorate(
         "verifyRefreshToken",
@@ -76,10 +76,10 @@ export default fp(
           } catch (err) {
             return reply.send(err);
           }
-        },
+        }
       );
   },
-  { name: "jwt", dependencies: ["cookie"] },
+  { name: "jwt", dependencies: ["cookie"] }
 );
 
 declare module "@fastify/jwt" {
@@ -92,7 +92,7 @@ declare module "@fastify/jwt" {
 declare module "fastify" {
   type OnRequestHook = (
     req: FastifyRequest,
-    reply: FastifyReply,
+    reply: FastifyReply
   ) => Promise<void>;
 
   interface FastifyInstance {

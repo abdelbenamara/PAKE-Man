@@ -61,10 +61,10 @@ const userinfo = (async (scope) => {
         },
         async (req, reply) => {
           return reply.send(req.user);
-        }
+        },
       );
     },
-    { prefix: "/userinfo" }
+    { prefix: "/userinfo" },
   );
 }) as FastifyPluginAsync;
 

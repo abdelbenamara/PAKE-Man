@@ -71,10 +71,10 @@ const users = (async (scope) => {
           } catch (err) {
             return reply.send(err);
           }
-        }
+        },
       );
     },
-    { prefix: "/users" }
+    { prefix: "/users" },
   );
 }) as FastifyPluginAsync;
 
