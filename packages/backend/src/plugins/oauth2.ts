@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 10:56:21 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/06 19:15:48 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/06/19 23:08:17 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@ import fp from "fastify-plugin";
 
 export default fp(
   async (scope) => {
-    scope.register(FastifyOauth2Plugin, {
+    const googleOAuth2Options = {
       name: "google",
       scope: ["openid", "profile", "email"],
       credentials: {
@@ -29,21 +29,33 @@ export default fp(
         access_type: "offline",
         include_granted_scopes: true,
       },
-      startRedirectPath: "/api/v1/auth/google",
+      startRedirectPath: "/api/auth/google",
       schema: {
         tags: ["auth"],
       },
       cookie: {
-        path: "/api/v1/auth/google",
+        path: "/api/auth/google",
         signed: false,
       },
       userAgent: "@pake-man/backend",
       discovery: {
         issuer: "https://accounts.google.com",
       },
-      redirectStateCookieName: "x__Secure-google-oauth2-redirect-state",
-      verifierCookieName: "x__Secure-google-oauth2-code-verifier",
-    } as FastifyOAuth2Options);
+      redirectStateCookieName: "__Secure-google-oauth2-redirect-state",
+      verifierCookieName: "__Secure-google-oauth2-code-verifier",
+    } as FastifyOAuth2Options;
+
+    scope
+      .register(FastifyOauth2Plugin, googleOAuth2Options)
+      .register(FastifyOauth2Plugin, {
+        ...googleOAuth2Options,
+        name: "googleV1",
+        startRedirectPath: "/api/v1/auth/google",
+        cookie: {
+          path: "/api/v1/auth/google",
+          signed: false,
+        },
+      } as FastifyOAuth2Options);
   },
-  { name: "oauth2", dependencies: ["cookie", "swagger"] }
+  { name: "oauth2", dependencies: ["cookie", "swagger"] },
 );

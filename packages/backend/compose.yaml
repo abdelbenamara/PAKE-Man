@@ -1,24 +1,51 @@
 name: pake-man
 
 services:
+  maildev:
+    image: maildev/maildev
+    restart: always
+    ports:
+      - 1080:1080 # Web interface
+    networks:
+      - maildev
+
   backend:
     build:
       context: .
+    depends_on:
+      maildev:
+        condition: service_healthy
     restart: always
     volumes:
       - db-data:/usr/src/pake-man/data
     environment:
       PAKE_MAN_COOKIE_SECRET: ${PAKE_MAN_COOKIE_SECRET}
       PAKE_MAN_CSRF_PROTECTION_HMAC_KEY: ${PAKE_MAN_CSRF_PROTECTION_HMAC_KEY}
+      PAKE_MAN_JWT_SECRET_ACCESS: ${PAKE_MAN_JWT_SECRET_ACCESS}
+      PAKE_MAN_JWT_SECRET_QUERY: ${PAKE_MAN_JWT_SECRET_QUERY}
+      PAKE_MAN_JWT_SECRET_REFRESH: ${PAKE_MAN_JWT_SECRET_REFRESH}
       PAKE_MAN_OAUTH2_GOOGLE_CALLBACK_URI: ${PAKE_MAN_OAUTH2_GOOGLE_CALLBACK_URI}
       PAKE_MAN_OAUTH2_GOOGLE_CLIENT_ID: ${PAKE_MAN_OAUTH2_GOOGLE_CLIENT_ID}
       PAKE_MAN_OAUTH2_GOOGLE_CLIENT_SECRET: ${PAKE_MAN_OAUTH2_GOOGLE_CLIENT_SECRET}
-      PAKE_MAN_JWT_SECRET: ${PAKE_MAN_JWT_SECRET}
+      PAKE_MAN_MAIL_TRANSPORT_HOST: ${PAKE_MAN_MAIL_TRANSPORT_HOST}
+      PAKE_MAN_MAIL_TRANSPORT_PORT: ${PAKE_MAN_MAIL_TRANSPORT_PORT}
+      PAKE_MAN_OTP_SECRET: ${PAKE_MAN_OTP_SECRET}
       PAKE_MAN_SERVER_CLOSE_GRACE_DELAY: ${PAKE_MAN_SERVER_CLOSE_GRACE_DELAY}
       PAKE_MAN_SERVER_HOST: 0.0.0.0
       PAKE_MAN_SERVER_PORT: 3000
     ports:
       - 3001:3000
+    networks:
+      - maildev
+
+networks:
+  maildev:
+    driver: bridge
 
 volumes:
   db-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./data

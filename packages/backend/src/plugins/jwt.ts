@@ -6,97 +6,141 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 14:38:00 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/06 19:16:39 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/06/26 10:42:00 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { User } from "#generated/prisma";
-import FastifyJWTPlugin, { FastifyJWTOptions } from "@fastify/jwt";
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import FastifyJWTPlugin, {
+  FastifyJwtNamespace,
+  FastifyJWTOptions,
+} from "@fastify/jwt";
+import { FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 
 export namespace jwt {
-  export type UserInfo = Pick<
-    User,
-    "picture" | "email" | "name" | "created_at"
-  >;
+  export const cookieName = "__Host-refresh-token";
 
-  export const accessTokenCookieName = "x__Host-access-token";
-  export const refreshTokenCookieName = "x__Host-refresh-token";
-  export const setAccessToken = (
-    fastify: FastifyInstance,
+  export type UserInfo = Pick<User, "public_id">;
+
+  export const setAccessToken = async (
     reply: FastifyReply,
-    payload: jwt.UserInfo
+    payload: jwt.UserInfo,
   ) => {
-    const accessToken = fastify.jwt.sign(payload);
-    const refreshToken = fastify.jwt.sign(
-      { name: payload.name },
-      { expiresIn: "1d" }
-    );
+    const accessToken = await reply.accessJwtSign(payload);
+    const refreshToken = await reply.refreshJwtSign({
+      public_id: payload.public_id,
+    });
     const secondsIn1Day = 86_400;
     const epochIn1Day = Date.now() + secondsIn1Day * 1_000;
 
-    reply.cookie(refreshTokenCookieName, refreshToken, {
+    reply.cookie(cookieName, refreshToken, {
       maxAge: secondsIn1Day,
       expires: new Date(epochIn1Day),
     });
 
     return accessToken;
   };
+
+  export type authenticateFn = (
+    req: FastifyRequest,
+    reply: FastifyReply,
+  ) => Promise<void>;
 }
 
 export default fp(
   async (scope) => {
     scope
       .register(FastifyJWTPlugin, {
-        secret: process.env.PAKE_MAN_JWT_SECRET!,
-        cookie: {
-          cookieName: jwt.refreshTokenCookieName,
-          signed: true,
+        secret: process.env.PAKE_MAN_JWT_SECRET_ACCESS!,
+        sign: {
+          expiresIn: "5m",
         },
+        namespace: "access",
+      } as FastifyJWTOptions)
+      .register(FastifyJWTPlugin, {
+        secret: process.env.PAKE_MAN_JWT_SECRET_QUERY!,
         sign: {
           expiresIn: "10m",
         },
+        verify: {
+          extractToken: (
+            req: FastifyRequest<{ Querystring: { token?: string } }>,
+          ) => req.query.token,
+        },
+        namespace: "query",
+      } as FastifyJWTOptions)
+      .register(FastifyJWTPlugin, {
+        secret: process.env.PAKE_MAN_JWT_SECRET_REFRESH!,
+        cookie: {
+          cookieName: jwt.cookieName,
+          signed: true,
+        },
+        sign: {
+          expiresIn: "1d",
+        },
+        namespace: "refresh",
       } as FastifyJWTOptions)
       .decorate(
-        "verifyAccessToken",
+        "authenticateAccessJwt",
         async (req: FastifyRequest, reply: FastifyReply) => {
           try {
-            await req.jwtVerify();
+            await req.accessJwtVerify();
           } catch (err) {
             return reply.send(err);
           }
-        }
+        },
       )
       .decorate(
-        "verifyRefreshToken",
+        "authenticateQueryJwt",
         async (req: FastifyRequest, reply: FastifyReply) => {
           try {
-            await req.jwtVerify({ onlyCookie: true });
+            await req.queryJwtVerify();
           } catch (err) {
             return reply.send(err);
           }
-        }
+        },
+      )
+      .decorate(
+        "authenticateRefreshJwt",
+        async (req: FastifyRequest, reply: FastifyReply) => {
+          try {
+            await req.refreshJwtVerify({ onlyCookie: true });
+          } catch (err) {
+            return reply.send(err);
+          }
+        },
       );
   },
-  { name: "jwt", dependencies: ["cookie"] }
+  { name: "jwt", dependencies: ["cookie"] },
 );
 
 declare module "@fastify/jwt" {
   interface FastifyJWT {
-    payload: jwt.UserInfo | Pick<jwt.UserInfo, "name">;
-    user: jwt.UserInfo;
+    payload: jwt.UserInfo;
+    user: jwt.UserInfo | null;
   }
 }
 
 declare module "fastify" {
-  type OnRequestHook = (
-    req: FastifyRequest,
-    reply: FastifyReply
-  ) => Promise<void>;
+  interface FastifyInstance
+    extends FastifyJwtNamespace<{ namespace: "access" }>,
+      FastifyJwtNamespace<{ namespace: "query" }>,
+      FastifyJwtNamespace<{ namespace: "refresh" }> {
+    authenticateAccessJwt: jwt.authenticateFn;
+    authenticateQueryJwt: jwt.authenticateFn;
+    authenticateRefreshJwt: jwt.authenticateFn;
+  }
 
-  interface FastifyInstance {
-    verifyAccessToken: OnRequestHook;
-    verifyRefreshToken: OnRequestHook;
+  interface FastifyRequest {
+    accessJwtVerify: FastifyRequest["jwtVerify"];
+    queryJwtVerify: FastifyRequest["jwtVerify"];
+    refreshJwtVerify: FastifyRequest["jwtVerify"];
+  }
+
+  interface FastifyReply {
+    accessJwtSign: FastifyReply["jwtSign"];
+    queryJwtSign: FastifyReply["jwtSign"];
+    refreshJwtSign: FastifyReply["jwtSign"];
   }
 }

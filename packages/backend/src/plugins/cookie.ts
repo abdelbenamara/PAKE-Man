@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:37:41 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/06 19:12:30 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/06/19 23:19:06 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ export default fp(
         partitioned: true,
         path: "/",
         sameSite: "strict",
-        // secure: true,
+        secure: true,
         signed: true,
       },
     } as FastifyCookieOptions);
   },
-  { name: "cookie", dependencies: ["cors"] }
+  { name: "cookie", dependencies: ["cors"] },
 );

@@ -21,5 +21,5 @@ export default fp(
       routePrefix: "/api/docs",
     } as FastifyApiReferenceOptions);
   },
-  { name: "api-reference", dependencies: ["swagger"] }
+  { name: "api-reference", dependencies: ["swagger"] },
 );

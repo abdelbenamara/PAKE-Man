@@ -16,35 +16,34 @@
 
 In **each** package directory:
 
-```shell
-touch package-lock.json \
-&& docker run \
--e "NODE_ENV=production" \
--v "$(pwd)/package.json:/package.json:ro" \
--v "$(pwd)/package-lock.json:/package-lock.json" \
-node:22.15.0-alpine npm i --package-lock-only \
-&& ./scripts/setup.sh \
-&& docker compose build [--no-cache]
+```console
+$ make build
+```
+
+Or to build all packages:
+
+```console
+$ make -C packages/* build
 ```
 
 ## Usage
 
 To **build** and **start**:
 
-```shell
-docker compose up [--build] [-d]
+```console
+$ docker compose up [--build] [-d]
 ```
 
 To **monitor**:
 
-```shell
-docker compose logs [-f]
+```console
+$ docker compose logs [-f]
 ```
 
 To **stop** and **clean**:
 
-```shell
-docker compose down [--rmi all] [--volumes]
+```console
+$ docker compose down [--rmi all] [--volumes]
 ```
 
 ## Contribute
@@ -57,6 +56,7 @@ Recommend VSCode extensions:
 - Lint with [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 - Style with [Tailwind](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)
 - ORM with [Prisma](https://marketplace.visualstudio.com/items?itemName=Prisma.prisma)
+- Storage with [SQLite](https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer)
 
 ## License
 
