@@ -49,10 +49,10 @@ const refresh = (async (scope) => {
               return reply.send(err);
             }
           }
-        }
+        },
       );
     },
-    { prefix: "/refresh" }
+    { prefix: "/refresh" },
   );
 }) as FastifyPluginAsync;
 

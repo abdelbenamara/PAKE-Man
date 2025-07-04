@@ -72,7 +72,7 @@ const email: FastifyPluginAsync = async (scope) => {
             } catch (err) {
               return reply.send(err);
             }
-          }
+          },
         )
         .post(
           "/verification/send",
@@ -152,10 +152,10 @@ const email: FastifyPluginAsync = async (scope) => {
             } catch (err) {
               return reply.send(err);
             }
-          }
+          },
         );
     },
-    { prefix: "/email" }
+    { prefix: "/email" },
   );
 };
 

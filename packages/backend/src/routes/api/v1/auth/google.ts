@@ -22,7 +22,7 @@ type GoogleUserInfo = {
 
 async function registerUserFromGoogleInfo(
   fastify: FastifyInstance,
-  info: Readonly<GoogleUserInfo>
+  info: Readonly<GoogleUserInfo>,
 ) {
   const last = (await fastify.prisma.user.findFirst({
     select: {
@@ -49,7 +49,7 @@ async function registerUserFromGoogleInfo(
 
 async function getUserFromGoogleInfo(
   fastify: FastifyInstance,
-  info: Readonly<GoogleUserInfo>
+  info: Readonly<GoogleUserInfo>,
 ) {
   const user = ((await fastify.prisma.user.findUnique({
     where: {
@@ -98,23 +98,23 @@ const google: FastifyPluginAsync = async (scope) => {
             const oauth2 =
               await scope.oauth2Google!.getAccessTokenFromAuthorizationCodeFlow(
                 req,
-                reply
+                reply,
               );
             req.user = await getUserFromGoogleInfo(
               scope,
               (await scope.oauth2Google!.userinfo(
-                oauth2.token
-              )) as Readonly<GoogleUserInfo>
+                oauth2.token,
+              )) as Readonly<GoogleUserInfo>,
             );
 
             return auth.verify(scope, req, reply);
           } catch (err) {
             return reply.send(err);
           }
-        }
+        },
       );
     },
-    { prefix: "/google" }
+    { prefix: "/google" },
   );
 };
 

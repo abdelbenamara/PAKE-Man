@@ -57,10 +57,10 @@ const hotp: FastifyPluginAsync = async (scope) => {
           } catch (err) {
             return reply.send(err);
           }
-        }
+        },
       );
     },
-    { prefix: "/hotp" }
+    { prefix: "/hotp" },
   );
 };
 

@@ -61,10 +61,10 @@ const login = (async (scope) => {
                 error: "Invalid provider",
               });
           }
-        }
+        },
       );
     },
-    { prefix: "/login" }
+    { prefix: "/login" },
   );
 }) as FastifyPluginAsync;
 

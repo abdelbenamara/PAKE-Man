@@ -18,7 +18,7 @@ export namespace auth {
     req: FastifyRequest,
     reply: FastifyReply,
     csrfToken: string,
-    user: { email: string; name: string }
+    user: { email: string; name: string },
   ) {
     const hotpToken = reply.htopGenerate();
 
@@ -127,7 +127,7 @@ export namespace auth {
   export async function verify(
     fastify: FastifyInstance,
     req: FastifyRequest,
-    reply: FastifyReply
+    reply: FastifyReply,
   ) {
     try {
       const csrfToken = reply.generateCsrf({ userInfo: req.user!.public_id });
@@ -156,7 +156,7 @@ export namespace auth {
     fastify: FastifyInstance,
     req: FastifyRequest,
     reply: FastifyReply,
-    accessToken: string
+    accessToken: string,
   ) {
     try {
       const csrfToken = reply.generateCsrf({ userInfo: req.user!.public_id });

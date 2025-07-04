@@ -63,10 +63,10 @@ const logout = (async (scope) => {
           } catch (err) {
             return reply.send(err);
           }
-        }
+        },
       );
     },
-    { prefix: "/logout" }
+    { prefix: "/logout" },
   );
 }) as FastifyPluginAsync;
 
