@@ -6,31 +6,23 @@
 #    By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/03 23:19:05 by abenamar          #+#    #+#              #
-#    Updated: 2025/07/04 15:38:00 by abenamar         ###   ########.fr        #
+#    Updated: 2025/07/04 19:20:06 by abenamar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-PACKAGE_LOCK := package-lock.json
-
-SCRIPTS_DIR := ./scripts
-
-RM := rm -f
-
-DOCKER := docker
-
 setup:
-	@$(SCRIPTS_DIR)/setup.sh
+	@./scripts/setup.sh
 
 build: setup
-	@$(SCRIPTS_DIR)/build.sh $${BUILD_OPTIONS}
+	@./scripts/build.sh $${BUILD_OPTIONS}
 
 all: build
 
 clean:
-	$(RM) $(PACKAGE_LOCK)
+	rm -f package-lock.json
 
 fclean: clean
-	$(DOCKER) compose down --rmi all --volumes
+	docker compose down --rmi all --volumes
 
 re: fclean all
 

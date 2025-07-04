@@ -2,11 +2,16 @@
 
 set -eo pipefail
 
+scriptdir=$(dirname "$0")
+parentdir=$(cd "$scriptdir/.." && pwd)
+
 generate_key() {
   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 }
 
 main() {
+  mkdir -p "$parentdir/data"
+
   {
     echo "PAKE_MAN_COOKIE_SECRET=\"$(generate_key)\""
     echo "PAKE_MAN_CSRF_PROTECTION_HMAC_KEY=\"$(generate_key)\""
