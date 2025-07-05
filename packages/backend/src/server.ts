@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/10 17:14:23 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/07 22:44:40 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/05 14:24:34 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ const server = Fastify({
 })
   .register(FastifyAutoLoadPlugin, {
     dir: resolve(import.meta.dirname, "plugins"),
-  })
+  } as FastifyAutoloadPluginOptions)
   .register(async (scope) => {
     scope
       .register(FastifyHelmetPlugin, {
@@ -74,7 +74,7 @@ CloseWithGrace(
     }
 
     await server.close();
-  },
+  }
 );
 
 try {

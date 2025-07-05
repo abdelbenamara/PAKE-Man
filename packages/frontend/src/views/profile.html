@@ -1,0 +1,40 @@
+<div class="mx-auto max-w-md">
+  <h2 class="mb-4 text-2xl font-bold">Profile</h2>
+  <div class="mb-4">
+    <span class="font-semibold">Name: </span
+    ><span id="displayName">Player1</span>
+  </div>
+  <div class="mb-4">
+    <span class="font-semibold">Profile Picture:</span>
+    <img
+      id="displayPic"
+      src="favicon.ico"
+      alt="Profile Picture"
+      class="h-24 w-24 rounded-full"
+    />
+  </div>
+  <form id="profileForm" class="space-y-4">
+    <div>
+      <label class="block">Name:</label>
+      <input
+        type="text"
+        id="nameInput"
+        class="w-full border p-2"
+        value="Player1"
+      />
+    </div>
+    <div>
+      <label class="block">Profile Picture:</label>
+      <input type="file" id="profilePicInput" accept="image/*" />
+    </div>
+    <button type="submit" class="rounded bg-green-600 px-4 py-2 text-white">
+      Update Profile
+    </button>
+  </form>
+  <button
+    id="enable2faBtn"
+    class="mt-4 rounded bg-blue-600 px-4 py-2 text-white"
+  >
+    Enable 2FA
+  </button>
+</div>

@@ -6,16 +6,20 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:51:41 by abenamar          #+#    #+#             */
-/*   Updated: 2025/05/21 10:47:48 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/05 17:02:20 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import FastifyStatic, { FastifyStaticOptions } from "@fastify/static";
+import FastifyAutoLoadPlugin, {
+  AutoloadPluginOptions as FastifyAutoloadPluginOptions,
+} from "@fastify/autoload";
+import FastifyHelmetPlugin, { FastifyHelmetOptions } from "@fastify/helmet";
+import FastifyRoutesStatsPlugin, {
+  FastifyRoutesStatsOptions,
+} from "@fastify/routes-stats";
 import CloseWithGrace from "close-with-grace";
 import "dotenv/config";
 import Fastify from "fastify";
-import FastifyHtmlPlugin, { FastifyHtmlOptions } from "fastify-html";
-import { includeFile } from "ghtml/includeFile.js";
 import { resolve } from "node:path";
 
 const server = Fastify({
@@ -36,11 +40,27 @@ const server = Fastify({
       dedupe: true,
     },
   },
-});
+})
+  .register(FastifyAutoLoadPlugin, {
+    dir: resolve(import.meta.dirname, "plugins"),
+  } as FastifyAutoloadPluginOptions)
+  .register(async (scope) => {
+    scope
+      .register(FastifyHelmetPlugin, {
+        global: true,
+        contentSecurityPolicy: false,
+      } as FastifyHelmetOptions)
+      .register(FastifyRoutesStatsPlugin, {
+        printInterval: 60_000,
+      } as FastifyRoutesStatsOptions)
+      .register(FastifyAutoLoadPlugin, {
+        dir: resolve(import.meta.dirname, "routes"),
+      } as FastifyAutoloadPluginOptions);
+  });
 
 CloseWithGrace(
   {
-    delay: parseInt(process.env.SERVER_CLOSE_GRACE_DELAY!),
+    delay: parseInt(process.env.PAKE_MAN_SERVER_CLOSE_GRACE_DELAY!),
     logger: server.log,
   },
   async ({ err, signal }) => {
@@ -55,52 +75,9 @@ CloseWithGrace(
 );
 
 try {
-  await server
-    .register(FastifyStatic, {
-      root: resolve(import.meta.dirname, "client"),
-      index: false,
-      wildcard: false,
-      allowedPath: (pathName) => {
-        return pathName !== "/index.html";
-      },
-    } as FastifyStaticOptions)
-    .register(FastifyHtmlPlugin, {
-      async: true,
-    } as FastifyHtmlOptions);
-
-  server.addLayout(
-    (inner) => {
-      const head = includeFile(
-        resolve(import.meta.dirname, "client", "index.html"),
-      )
-        .split("<head>")[1]
-        .split("</head>")[0];
-
-      return server.html`
-        <!doctype html>
-        <html lang="en">
-          <head>
-            !${head}
-          </head>
-          <body class="m-0 h-screen w-screen p-0">
-            !${inner}
-          </body>
-        </html>
-      `;
-    },
-    { skipOnHeader: "hx-request" },
-  );
-  server.get("/", (_req, reply) => {
-    const indexView = includeFile(
-      resolve(import.meta.dirname, "views", "index.html"),
-    );
-
-    return reply.html`!${indexView}`;
-  });
-
   await server.listen({
-    host: process.env.SERVER_HOST,
-    port: parseInt(process.env.SERVER_PORT!),
+    host: process.env.PAKE_MAN_SERVER_HOST!,
+    port: parseInt(process.env.PAKE_MAN_SERVER_PORT!),
   });
 
   server.log.info(`Server plugins: \n${server.printPlugins()}`);

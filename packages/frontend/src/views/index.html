@@ -1,1 +1,19 @@
-<canvas id="app" class="m-0 h-full w-full p-0"></canvas>
+<div class="text-center">
+  <h1 class="mb-4 text-4xl font-bold">Welcome to PAKE-Man</h1>
+  <button
+    hx-get="/pong"
+    hx-target="#content"
+    hx-push-url="true"
+    class="rounded bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
+  >
+    Play Now
+  </button>
+
+  <!-- Google Sign-In Button -->
+  <a
+    href="https://backend/api/auth/google"
+    class="inline-block rounded bg-red-600 px-6 py-3 text-white hover:bg-red-700"
+  >
+    Sign in with Google
+  </a>
+</div>
