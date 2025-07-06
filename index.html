@@ -1,308 +1,575 @@
 <!doctype html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <title>Babylon.js sample code</title>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Babylon.js Pong with Start &amp; Pause</title>
 
-        <!-- Babylon.js -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
-        <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
-        <script src="https://cdn.babylonjs.com/recast.js"></script>
-        <script src="https://cdn.babylonjs.com/ammo.js"></script>
-        <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
-        <script src="https://cdn.babylonjs.com/cannon.js"></script>
-        <script src="https://cdn.babylonjs.com/Oimo.js"></script>
-        <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
-        <script src="https://cdn.babylonjs.com/babylon.js"></script>
-        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-        <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
-        <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
-        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
-        <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
-        <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
-        <script src="https://cdn.babylonjs.com/addons/babylonjs.addons.min.js"></script>
-        <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+  <!-- Babylon.js (core + GUI) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+  <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+  <script src="https://cdn.babylonjs.com/recast.js"></script>
+  <script src="https://cdn.babylonjs.com/ammo.js"></script>
+  <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+  <script src="https://cdn.babylonjs.com/cannon.js"></script>
+  <script src="https://cdn.babylonjs.com/Oimo.js"></script>
+  <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+  <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="https://cdn.babylonjs.com/addons/babylonjs.addons.min.js"></script>
+  <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
 
-        <style>
-            html,
-            body {
-                overflow: hidden;
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-
-            #renderCanvas {
-                width: 100%;
-                height: 100%;
-                touch-action: none;
-            }
-
-            #canvasZone {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
-        <script>
-                    var canvas = document.getElementById("renderCanvas");
-
-                    var startRenderLoop = function (engine, canvas) {
-                        engine.runRenderLoop(function () {
-                            if (sceneToRender && sceneToRender.activeCamera) {
-                                sceneToRender.render();
-                            }
-                        });
-                    }
-
-                    var engine = null;
-        var scene = null;
-        var sceneToRender = null;
-        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
-        // pong.js - configurably holographic Pong with proper grid and scoreboard orientation
-
-// ===== CONFIGURABLE CONSTANTS =====
-const PADDLE_WIDTH           = 0.5;
-const PADDLE_HEIGHT          = 3;
-const PADDLE_DEPTH           = 1;
-const PADDLE_OFFSET_X        = 7;
-
-const FIELD_WIDTH            = 12;
-const FIELD_HEIGHT           = 10;
-const WALL_THICKNESS         = 1;
-
-const BALL_DIAMETER          = 1;
-const INITIAL_BALL_SPEED     = 0.08;
-const BALL_SPEED_INCREMENT   = 1.05;
-
-const PADDLE_MOVE_STEP       = 0.3;
-const SCORE_BOUNDARY_X       = PADDLE_OFFSET_X + 1;
-
-// ===== MAIN PLAYGROUND ENTRY POINT =====
-var createScene = function () {
-    const scene = new BABYLON.Scene(this._engine);
-
-    // Fog for volumetric haze
-    scene.fogMode    = BABYLON.Scene.FOGMODE_EXP;
-    scene.fogColor   = new BABYLON.Color3(0.05, 0.1, 0.15);
-    scene.fogDensity = 0.02;
-
-    // Glow layer for subtle bloom
-    const glow = new BABYLON.GlowLayer("glow", scene);
-    glow.intensity = 0.3;
-
-    // CAMERA
-    const camera = new BABYLON.ArcRotateCamera(
-      "cam", Math.PI/2, Math.PI/2,
-      PADDLE_OFFSET_X * 4, BABYLON.Vector3.Zero(), scene
-    );
-    camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
-    camera.attachControl(this._canvas, true);
-
-    // LIGHT
-    const light = new BABYLON.HemisphericLight(
-      "light", new BABYLON.Vector3(0,1,0), scene
-    );
-    light.intensity = 0.7;
-
-    // FIELD BOUNDS
-    const halfW = FIELD_WIDTH / 2;
-    const halfH = FIELD_HEIGHT / 2;
-    const wallMat = new BABYLON.StandardMaterial("wallMat", scene);
-    wallMat.alpha = 0;
-    const top = BABYLON.MeshBuilder.CreateBox(
-      "topWall", { width: FIELD_WIDTH, height: WALL_THICKNESS, depth: WALL_THICKNESS }, scene
-    );
-    top.position.y = halfH + WALL_THICKNESS/2;
-    top.material   = wallMat;
-    const bottom = top.clone("bottomWall");
-    bottom.position.y = -halfH - WALL_THICKNESS/2;
-
-    // BACK-WALL GRID: vertical ground with subdivisions
-    const backWall = BABYLON.MeshBuilder.CreateGround("backWall", {
-      width: FIELD_WIDTH,
-      height: FIELD_HEIGHT,
-      subdivisions: 20
-    }, scene);
-    backWall.rotation.x = Math.PI / 2;  // make vertical
-    backWall.position.z = -PADDLE_OFFSET_X - 0.1;
-    const gridMat = new BABYLON.StandardMaterial("gridMat", scene);
-    gridMat.backFaceCulling = false;
-    gridMat.emissiveColor   = new BABYLON.Color3(0.2, 0.6, 0.8);
-    gridMat.alpha           = 0.5;
-    gridMat.wireframe       = true;
-    backWall.material       = gridMat;
-
-    // Under-light to accentuate the grid
-    const underLight = new BABYLON.PointLight(
-      "under", new BABYLON.Vector3(0, -0.1, 0), scene
-    );
-    underLight.range     = FIELD_WIDTH;
-    underLight.intensity = 0.5;
-    underLight.diffuse   = new BABYLON.Color3(0.1, 0.5, 0.7);
-
-    // PADDLES
-    const paddleOpts = { width: PADDLE_WIDTH, height: PADDLE_HEIGHT, depth: PADDLE_DEPTH };
-    const leftPaddle  = BABYLON.MeshBuilder.CreateBox("leftPaddle", paddleOpts, scene);
-    leftPaddle.position.x = -PADDLE_OFFSET_X;
-    const rightPaddle = leftPaddle.clone("rightPaddle");
-    rightPaddle.position.x = PADDLE_OFFSET_X;
-
-    // BALL
-    const ball = BABYLON.MeshBuilder.CreateSphere(
-      "ball", { diameter: BALL_DIAMETER }, scene
-    );
-    ball.position.set(0,0,0);
-
-    // Holographic materials
-    [leftPaddle, rightPaddle, ball].forEach(mesh => {
-      const holoMat = new BABYLON.StandardMaterial("holo", scene);
-      holoMat.alpha           = 0.3;
-      holoMat.emissiveColor   = new BABYLON.Color3(0.1, 0.6, 0.9);
-      holoMat.disableLighting = true;
-      mesh.material           = holoMat;
-    });
-
-    // STATE
-    let speed   = INITIAL_BALL_SPEED;
-    let velocity = new BABYLON.Vector3(speed, speed, 0);
-    let leftScore = 0, rightScore = 0;
-
-    // INPUT
-    const inputMap = {};
-    scene.actionManager = new BABYLON.ActionManager(scene);
-    scene.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnKeyDownTrigger,
-        evt => inputMap[evt.sourceEvent.key] = true
-      )
-    );
-    scene.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnKeyUpTrigger,
-        evt => inputMap[evt.sourceEvent.key] = false
-      )
-    );
-
-    // SCOREBOARD PLANE
-    const scorePlane = BABYLON.MeshBuilder.CreatePlane("scorePlane", { width:4, height:1 }, scene);
-    scorePlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
-    scorePlane.position.set(
-      0,
-      halfH + 1,
-      -PADDLE_OFFSET_X * 0.5  // place slightly behind center toward camera
-    );
-
-    // DynamicTexture for text
-    const dt = new BABYLON.DynamicTexture("dt", { width:512, height:128 }, scene, false);
-    dt.hasAlpha = true;
-    const scoreMat = new BABYLON.StandardMaterial("scoreMat", scene);
-    scoreMat.diffuseTexture  = dt;
-    scoreMat.emissiveColor   = new BABYLON.Color3(1,1,1);
-    scoreMat.disableLighting = true;
-    scorePlane.material      = scoreMat;
-
-    function updateScoreTexture(text) {
-      const ctx = dt.getContext();
-      const { width, height } = dt.getSize();
-      ctx.clearRect(0, 0, width, height);
-      dt.drawText(text, width/2, height/2 + 20,
-        "bold 72px Arial", "white", "transparent", true
-      );
+  <style>
+    html,
+    body {
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
-    updateScoreTexture("0 : 0");
 
-    // LOOP
-    scene.onBeforeRenderObservable.add(() => {
-      // Paddle movement
-      if (inputMap["w"]      && rightPaddle.position.y < halfH - PADDLE_HEIGHT/2)  rightPaddle.position.y += PADDLE_MOVE_STEP;
-      if (inputMap["s"]      && rightPaddle.position.y > -halfH + PADDLE_HEIGHT/2) rightPaddle.position.y -= PADDLE_MOVE_STEP;
-      if (inputMap["ArrowUp"]   && leftPaddle.position.y  < halfH - PADDLE_HEIGHT/2) leftPaddle.position.y  += PADDLE_MOVE_STEP;
-      if (inputMap["ArrowDown"] && leftPaddle.position.y  > -halfH + PADDLE_HEIGHT/2) leftPaddle.position.y  -= PADDLE_MOVE_STEP;
+    #renderCanvas {
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
 
-      // Ball trajectory
-      const nextPos = ball.position.add(velocity);
-      const maxY = halfH - BALL_DIAMETER/2;
-      if (nextPos.y > maxY || nextPos.y < -maxY) {
-        velocity.y *= -1;
-        nextPos.y = BABYLON.Scalar.Clamp(nextPos.y, -maxY, maxY);
+    #canvasZone {
+      width: 100%;
+      height: 100%;
+    }
+
+    @font-face {
+      font-family: 'Valorant';
+      src: url('fonts/Valorant.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+  <script>
+    var canvas = document.getElementById("renderCanvas");
+
+    var startRenderLoop = function (engine, canvas) {
+      engine.runRenderLoop(function () {
+        if (sceneToRender && sceneToRender.activeCamera) {
+          sceneToRender.render();
+        }
+      });
+    };
+
+    var engine = null;
+    var scene = null;
+    var sceneToRender = null;
+    var createDefaultEngine = function () {
+      return new BABYLON.Engine(canvas, true, {
+        preserveDrawingBuffer: true,
+        stencil: true,
+        disableWebGL2Support: false
+      });
+    };
+
+    // ===== CONFIGURABLE CONSTANTS =====
+    const PADDLE_WIDTH = 0.5;
+    const PADDLE_HEIGHT = 3;
+    const PADDLE_DEPTH = 1;
+    const PADDLE_OFFSET_X = 8;
+
+    const FIELD_WIDTH = 16;
+    const FIELD_HEIGHT = 10;
+    const WALL_THICKNESS = 1;
+
+    const BALL_DIAMETER = 1;
+    const INITIAL_BALL_SPEED = 0.08;
+    const BALL_SPEED_INCREMENT = 1.05;
+
+    const PADDLE_MOVE_STEP = 0.3;
+    const SCORE_BOUNDARY_X = PADDLE_OFFSET_X + 1;
+
+    // Flags to track game state
+    let gameStarted = false;
+    let gamePaused = false;
+    let spaceHandled = false;
+
+    const DEFAULTS = {
+      theme: 'neon',
+      speedMode: 'normal'    // 'slow' | 'normal' | 'fast'
+    };
+    let settings = JSON.parse(localStorage.getItem('pongSettings')) || DEFAULTS;
+
+    // ===== MAIN PLAYGROUND ENTRY POINT =====
+    var createScene = function () {
+      // Use `engine` here (not this._engine)
+      const scene = new BABYLON.Scene(engine);
+
+      // Fog for volumetric haze
+      scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
+      scene.fogColor = new BABYLON.Color3(0.05, 0.1, 0.15);
+      scene.fogDensity = 0.02;
+
+      // Glow layer for subtle bloom
+      const glow = new BABYLON.GlowLayer("glow", scene);
+      glow.intensity = 0.3;
+
+      // CAMERA
+      const camera = new BABYLON.ArcRotateCamera(
+        "cam", Math.PI / 2, Math.PI / 2,
+        PADDLE_OFFSET_X * 4, BABYLON.Vector3.Zero(), scene
+      );
+      camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
+      camera.attachControl(canvas, true);
+      camera.radius = 13;
+
+      // LIGHT
+      const light = new BABYLON.HemisphericLight(
+        "light", new BABYLON.Vector3(0, 1, 0), scene
+      );
+      light.intensity = 0.7;
+
+      // FIELD BOUNDS
+      const halfW = FIELD_WIDTH / 2;
+      const halfH = FIELD_HEIGHT / 2;
+      const wallMat = new BABYLON.StandardMaterial("wallMat", scene);
+      wallMat.alpha = 0;
+      const top = BABYLON.MeshBuilder.CreateBox(
+        "topWall", { width: FIELD_WIDTH, height: WALL_THICKNESS, depth: WALL_THICKNESS }, scene
+      );
+      top.position.y = halfH + WALL_THICKNESS / 2;
+      top.material = wallMat;
+      const bottom = top.clone("bottomWall");
+      bottom.position.y = -halfH - WALL_THICKNESS / 2;
+
+      // BACK-WALL GRID: vertical ground with subdivisions
+      const backWall = BABYLON.MeshBuilder.CreateGround("backWall", {
+        width: FIELD_WIDTH,
+        height: FIELD_HEIGHT,
+        subdivisions: 20
+      }, scene);
+      backWall.rotation.x = Math.PI / 2;  // make vertical
+      backWall.position.z = -PADDLE_OFFSET_X - 0.1;
+      const gridMat = new BABYLON.StandardMaterial("gridMat", scene);
+      gridMat.backFaceCulling = false;
+      gridMat.emissiveColor = new BABYLON.Color3(0.2, 0.6, 0.8);
+      gridMat.alpha = 0.5;
+      gridMat.wireframe = true;
+      backWall.material = gridMat;
+
+      // Under-light to accentuate the grid
+      const underLight = new BABYLON.PointLight(
+        "under", new BABYLON.Vector3(0, -0.1, 0), scene
+      );
+      underLight.range = FIELD_WIDTH;
+      underLight.intensity = 0.5;
+      underLight.diffuse = new BABYLON.Color3(0.1, 0.5, 0.7);
+
+      // PADDLES
+      const paddleOpts = { width: PADDLE_WIDTH, height: PADDLE_HEIGHT, depth: PADDLE_DEPTH };
+      const leftPaddle = BABYLON.MeshBuilder.CreateBox("leftPaddle", paddleOpts, scene);
+      leftPaddle.position.x = -PADDLE_OFFSET_X;
+      const rightPaddle = leftPaddle.clone("rightPaddle");
+      rightPaddle.position.x = PADDLE_OFFSET_X;
+
+      // BALL
+      const ball = BABYLON.MeshBuilder.CreateSphere(
+        "ball", { diameter: BALL_DIAMETER }, scene
+      );
+      ball.position.set(0, 0, 0);
+      const particleSystem = new BABYLON.ParticleSystem("ballTrail", 2000, scene);
+
+      // Use a built-in texture
+      particleSystem.particleTexture = new BABYLON.Texture("https://playground.babylonjs.com/textures/flare.png", scene);
+
+      // Emit from the ball
+      particleSystem.emitter = ball;
+
+      // Emit from a small box behind the ball
+      particleSystem.minEmitBox = new BABYLON.Vector3(-0.1, -0.1, -0.1);
+      particleSystem.maxEmitBox = new BABYLON.Vector3(0.1, 0.1, 0.1);
+
+      // Colors
+      particleSystem.color1 = new BABYLON.Color4(0.2, 0.6, 1.0, 1.0);
+      particleSystem.color2 = new BABYLON.Color4(0.0, 0.5, 1.0, 1.0);
+      particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
+
+      // Size and lifetime
+      particleSystem.minSize = 0.1;
+      particleSystem.maxSize = 0.3;
+      particleSystem.minLifeTime = 0.2;
+      particleSystem.maxLifeTime = 0.4;
+
+      // Emission rate
+      particleSystem.emitRate = 100;
+
+      // Speed
+      particleSystem.minEmitPower = 0.5;
+      particleSystem.maxEmitPower = 1.0;
+      particleSystem.updateSpeed = 0.02;
+
+      // Start the particle system
+      particleSystem.start();
+
+
+      // Holographic materials
+      [leftPaddle, rightPaddle, ball].forEach(mesh => {
+        const holoMat = new BABYLON.StandardMaterial("holo", scene);
+        holoMat.alpha = 0.3;
+        holoMat.emissiveColor = new BABYLON.Color3(0.1, 0.6, 0.9);
+        holoMat.disableLighting = true;
+        mesh.material = holoMat;
+      });
+
+      // STATE
+      let speed = INITIAL_BALL_SPEED;
+      let velocity = new BABYLON.Vector3(speed, speed, 0);
+      let leftScore = 0, rightScore = 0;
+
+      // INPUT
+      const inputMap = {};
+      scene.actionManager = new BABYLON.ActionManager(scene);
+      scene.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnKeyDownTrigger,
+          evt => inputMap[evt.sourceEvent.key] = true
+        )
+      );
+      scene.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnKeyUpTrigger,
+          evt => inputMap[evt.sourceEvent.key] = false
+        )
+      );
+
+      // SCOREBOARD PLANE
+      const scorePlane = BABYLON.MeshBuilder.CreatePlane("scorePlane", { width: 4, height: 1 }, scene);
+      scorePlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+      scorePlane.position.set(
+        0,
+        halfH + 1,
+        -PADDLE_OFFSET_X * 0.5  // place slightly behind center toward camera
+      );
+
+      // DynamicTexture for text
+      const dt = new BABYLON.DynamicTexture("dt", { width: 512, height: 128 }, scene, false);
+      dt.hasAlpha = true;
+      const scoreMat = new BABYLON.StandardMaterial("scoreMat", scene);
+      scoreMat.diffuseTexture = dt;
+      scoreMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
+      scoreMat.disableLighting = true;
+      scorePlane.material = scoreMat;
+
+      function updateScoreTexture(text) {
+        const ctx = dt.getContext();
+        ctx.textAlign = "center";    // horizontal centering
+        ctx.textBaseline = "middle";    // vertical centering
+        const { width, height } = dt.getSize();
+        ctx.clearRect(0, 0, width, height);
+        dt.drawText(text, width / 2, height / 2 + 20,
+          "bold 72px Valorant, sans-serif", "white", "transparent", true
+        );
       }
+      updateScoreTexture("0 : 0");
 
-      // Paddle collision
-      [leftPaddle, rightPaddle].forEach(p => {
-        const dx = nextPos.x - p.position.x;
-        const dy = nextPos.y - p.position.y;
-        const overlapX = (PADDLE_WIDTH/2 + BALL_DIAMETER/2) - Math.abs(dx);
-        const overlapY = (PADDLE_HEIGHT/2 + BALL_DIAMETER/2) - Math.abs(dy);
-        if (overlapX > 0 && overlapY > 0) {
-          if (overlapX < overlapY) {
-            velocity.x *= -BALL_SPEED_INCREMENT;
-            nextPos.x = p.position.x + Math.sign(dx) * (PADDLE_WIDTH/2 + BALL_DIAMETER/2);
-          } else {
-            velocity.y *= -1;
-            nextPos.y = p.position.y + Math.sign(dy) * (PADDLE_HEIGHT/2 + BALL_DIAMETER/2);
+      // Create a fullscreen GUI
+      const guiTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+      // ─────── Start Button ───────
+      const startBtn = BABYLON.GUI.Button.CreateSimpleButton("startBtn", "Start");
+      startBtn.width = "200px";
+      startBtn.height = "60px";
+      startBtn.color = "white";
+      // Match paddles’ holographic tint (26,153,230) @ alpha=0.3
+      startBtn.background = "rgba(26, 153, 230, 0.3)";
+      startBtn.paddingTop = "10px";
+      startBtn.fontFamily = "Valorant, sans-serif";
+      // Center on screen
+      startBtn.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+      startBtn.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+      guiTexture.addControl(startBtn);
+
+
+      startBtn.onPointerUpObservable.add(() => {
+        gameStarted = true;
+        gamePaused = false;
+        startBtn.isVisible = false;
+      });
+
+      // MAIN LOOP
+      scene.onBeforeRenderObservable.add(() => {
+        // 1. Toggle pause when Space is pressed:
+        if (inputMap[" "] && !spaceHandled && gameStarted) {
+          gamePaused = !gamePaused;
+          spaceHandled = true;
+        }
+        if (!inputMap[" "]) {
+          spaceHandled = false;
+        }
+
+        // 2. Skip movement while not started or when paused:
+        if (!gameStarted || gamePaused) {
+          return;
+        }
+
+        // Paddle movement
+        if (inputMap["w"] && rightPaddle.position.y < halfH - PADDLE_HEIGHT / 2) rightPaddle.position.y += PADDLE_MOVE_STEP;
+        if (inputMap["s"] && rightPaddle.position.y > -halfH + PADDLE_HEIGHT / 2) rightPaddle.position.y -= PADDLE_MOVE_STEP;
+        if (inputMap["ArrowUp"] && leftPaddle.position.y < halfH - PADDLE_HEIGHT / 2) leftPaddle.position.y += PADDLE_MOVE_STEP;
+        if (inputMap["ArrowDown"] && leftPaddle.position.y > -halfH + PADDLE_HEIGHT / 2) leftPaddle.position.y -= PADDLE_MOVE_STEP;
+
+        // Ball trajectory
+        const nextPos = ball.position.add(velocity);
+        const maxY = halfH - BALL_DIAMETER / 2;
+        if (nextPos.y > maxY || nextPos.y < -maxY) {
+          velocity.y *= -1;
+          nextPos.y = BABYLON.Scalar.Clamp(nextPos.y, -maxY, maxY);
+        }
+
+        // Particle movement
+        particleSystem.direction1 = velocity.scale(-1);
+        particleSystem.direction2 = velocity.scale(-1.2);
+
+
+        // Paddle collision
+        [leftPaddle, rightPaddle].forEach(p => {
+          const dx = nextPos.x - p.position.x;
+          const dy = nextPos.y - p.position.y;
+          const overlapX = (PADDLE_WIDTH / 2 + BALL_DIAMETER / 2) - Math.abs(dx);
+          const overlapY = (PADDLE_HEIGHT / 2 + BALL_DIAMETER / 2) - Math.abs(dy);
+          if (overlapX > 0 && overlapY > 0) {
+            if (overlapX < overlapY) {
+              velocity.x *= -BALL_SPEED_INCREMENT;
+              nextPos.x = p.position.x + Math.sign(dx) * (PADDLE_WIDTH / 2 + BALL_DIAMETER / 2);
+            } else {
+              velocity.y *= -1;
+              nextPos.y = p.position.y + Math.sign(dy) * (PADDLE_HEIGHT / 2 + BALL_DIAMETER / 2);
+            }
           }
+        });
+
+        ball.position.copyFrom(nextPos);
+
+
+        // 1) CREATE THE POPUP PANEL
+        const winPopup = new BABYLON.GUI.Rectangle("winPopup");
+        winPopup.width = "400px";
+        winPopup.height = "200px";
+        winPopup.thickness = 2;
+        winPopup.color = "white";
+        winPopup.background = "rgba(26, 153, 230, 0.3)";
+        winPopup.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        winPopup.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        winPopup.isVisible = false;                 // start hidden
+        guiTexture.addControl(winPopup);
+
+        // 2) ADD A STACK PANEL TO LAY OUT TEXT + BUTTON
+        const stack = new BABYLON.GUI.StackPanel();
+        stack.isVertical = true;
+        winPopup.addControl(stack);
+
+        // 3) WINNER TEXT
+        const winText = new BABYLON.GUI.TextBlock();
+        winText.text = "";       // will set on show
+        winText.fontSize = 32;
+        winText.height = "60px";
+        winText.color = "white";
+        winText.fontFamily = "Valorant, sans-serif";
+        stack.addControl(winText);
+
+        // 4) “PLAY AGAIN” BUTTON
+        const playAgainBtn = BABYLON.GUI.Button.CreateSimpleButton("playAgain", "Play Again");
+        playAgainBtn.width = "150px";
+        playAgainBtn.height = "50px";
+        playAgainBtn.color = "white";
+        playAgainBtn.background = "rgba(26, 153, 230, 0.3)";
+        playAgainBtn.paddingTop = "10px";
+        playAgainBtn.fontFamily = "Valorant, sans-serif";
+        // playAgainBtn.fontSize   = 18;               // adjust for readability
+
+        playAgainBtn.onPointerUpObservable.add(() => {
+          winPopup.isVisible = false;
+          // reset scores & visuals
+          leftScore = 0;
+          rightScore = 0;
+          updateScoreTexture("0 : 0");
+          reset(1);                // serve to the right by default
+        });
+        stack.addControl(playAgainBtn);
+
+        playAgainBtn.onPointerUpObservable.add(() => {
+          gameStarted = true;
+          gamePaused = false;
+          startBtn.isVisible = false; // hide start button when playing
+        });
+
+        // 5) SHOW FUNCTION
+        function showWinPopup(winner) {
+          winText.text = winner + " Player Wins!";
+          winPopup.isVisible = true;
+          gamePaused = true;  // pause the game
+          gameStarted = false; // stop the game
+        }
+
+        // Scoring
+        if (ball.position.x > SCORE_BOUNDARY_X) {
+          leftScore++;
+          updateScoreTexture(`${leftScore} : ${rightScore}`);
+          if (leftScore >= 3 && leftScore - rightScore >= 2) {
+            showWinPopup("Left");
+          }
+          reset(-1);
+        } else if (ball.position.x < -SCORE_BOUNDARY_X) {
+          rightScore++;
+          updateScoreTexture(`${leftScore} : ${rightScore}`);
+          if (rightScore >= 3 && rightScore - leftScore >= 2) {
+            showWinPopup("Right");
+          }
+          reset(1);
         }
       });
 
-      ball.position.copyFrom(nextPos);
-
-      // Scoring
-      if (ball.position.x > SCORE_BOUNDARY_X) {
-        leftScore++;
-        updateScoreTexture(`${leftScore} : ${rightScore}`);
-        reset(-1);
-      } else if (ball.position.x < -SCORE_BOUNDARY_X) {
-        rightScore++;
-        updateScoreTexture(`${leftScore} : ${rightScore}`);
-        reset(1);
+      function getBallSpeed() {
+        switch (settings.speedMode) {
+          case "slow": return INITIAL_BALL_SPEED * 0.75;
+          case "fast": return INITIAL_BALL_SPEED * 1.5;
+          default: return INITIAL_BALL_SPEED;
+        }
       }
+
+      function reset(dir) {
+        ball.position.set(0, 0, 0);
+        speed = getBallSpeed();
+        velocity = new BABYLON.Vector3(speed * dir, speed, 0);
+      }
+
+      // —————— BABYLON-GUI MENU ——————
+      // … your existing GUI setup …
+      const gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+      // === Menu Button (house icon) ===
+      const menuBtn = BABYLON.GUI.Button.CreateSimpleButton("settingsBtn", "⚙️ Settings");
+      // (that URL is just a placeholder house-icon; swap in your own)
+      menuBtn.width = "200px";
+      menuBtn.height = "60px";
+      menuBtn.color = "white";
+      menuBtn.paddingTop = "10px";
+      menuBtn.paddingLeft = "10px";
+      menuBtn.fontFamily = "Valorant, sans-serif";
+      menuBtn.background = "rgba(26, 153, 230, 0.3)";
+      menuBtn.top = "10px";
+      menuBtn.left = "10px";
+      menuBtn.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+      menuBtn.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+      gui.addControl(menuBtn);
+
+      // === Settings Panel ===
+      const settingsPanel = new BABYLON.GUI.Rectangle("settingsPanel");
+      settingsPanel.width = "300px";
+      settingsPanel.height = "220px";
+      settingsPanel.cornerRadius = 10;
+      settingsPanel.color = "white";
+      settingsPanel.thickness = 2;
+      settingsPanel.background = "rgba(26, 153, 230, 0.3)";
+      settingsPanel.alpha = 0.8;
+      settingsPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+      settingsPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+      settingsPanel.isVisible = false;    // start hidden
+      gui.addControl(settingsPanel);
+
+      // StackPanel for layout inside the panel
+      const stack = new BABYLON.GUI.StackPanel();
+      stack.isVertical = true;
+      stack.paddingTop = "10px";
+      settingsPanel.addControl(stack);
+
+      // — Map buttons —
+      ["Map 1", "Map 2"].forEach((label, i) => {
+        const btn = BABYLON.GUI.Button.CreateSimpleButton(`mapBtn${i}`, label);
+        btn.width = "200px";
+        btn.height = "40px";
+        btn.marginTop = "5px";
+        btn.color = "white";
+        btn.background = "rgba(26, 153, 230, 0.3)";
+        btn.onPointerUpObservable.add(() => {
+          console.log("Loading", label);
+          loadMap && loadMap(label.toLowerCase().replace(" ", ""));
+        });
+        stack.addControl(btn);
+      });
+
+      // — Speed slider & label —
+      // let speed = INITIAL_BALL_SPEED;    // your existing var
+      const speedLabel = new BABYLON.GUI.TextBlock("speedLabel", `Speed: ${speed.toFixed(2)}`);
+      speedLabel.height = "30px";
+      speedLabel.color = "white";
+      speedLabel.paddingTop = "10px";
+      stack.addControl(speedLabel);
+
+      const speedSlider = new BABYLON.GUI.Slider("speed");
+      speedSlider.minimum = 0.01;
+      speedSlider.maximum = INITIAL_BALL_SPEED * 10;
+      speedSlider.value = speed;
+      speedSlider.height = "20px";
+      speedSlider.width = "200px";
+      speedSlider.background = "rgba(26, 153, 230, 0.3)";
+      speedSlider.onValueChangedObservable.add(v => {
+        speed = v;
+        speedLabel.text = `Speed: ${v.toFixed(2)}`;
+        // *** key part: rescale your in-flight velocity ***
+        const dir = velocity.clone().normalize();
+        velocity = dir.scale(v);
+      });
+      stack.addControl(speedSlider);
+
+      // === Wire up the menuBtn to toggle the panel ===
+      menuBtn.onPointerUpObservable.add(() => {
+        settingsPanel.isVisible = !settingsPanel.isVisible;
+        gamePaused = settingsPanel.isVisible; // Pause game when settings are open
+        winPopup.isVisible = false; // Hide win popup if settings are opened
+        startBtn.isVisible = !settingsPanel.isVisible && !gameStarted && !winPopup.isVisible; // Hide start button when settings are open
+      });
+
+      // === Save settings on close ===
+      // settingsPanel.onDisposeObservable.add(() => {
+      //   winPopup.isVisible = true;
+      // });
+
+
+      return scene;
+    };
+
+    // Playground auto‐calls createScene() and renders
+    window.initFunction = async function () {
+      var asyncEngineCreation = async function () {
+        try {
+          return createDefaultEngine();
+        } catch (e) {
+          console.log("Engine creation failed; retrying default engine.");
+          return createDefaultEngine();
+        }
+      };
+
+      window.engine = await asyncEngineCreation();
+      if (!engine) throw 'engine should not be null.';
+      startRenderLoop(engine, canvas);
+      window.scene = createScene();
+    };
+    initFunction().then(() => {
+      sceneToRender = scene;
     });
 
-    function reset(dir) {
-      ball.position.set(0,0,0);
-      speed = INITIAL_BALL_SPEED;
-      velocity = new BABYLON.Vector3(speed * dir, speed, 0);
-    }
+    // Resize
+    window.addEventListener("resize", function () {
+      engine.resize();
+    });
+  </script>
+</body>
 
-    return scene;
-};
-
-// Playground auto-calls createScene() and renders
-
-                window.initFunction = async function() {
-                    
-                    
-                    
-                    var asyncEngineCreation = async function() {
-                        try {
-                        return createDefaultEngine();
-                        } catch(e) {
-                        console.log("the available createEngine function failed. Creating the default engine instead");
-                        return createDefaultEngine();
-                        }
-                    }
-
-                    window.engine = await asyncEngineCreation();
-                    
-                    const engineOptions = window.engine.getCreationOptions?.();
-                    if (!engineOptions || engineOptions.audioEngine !== false) {
-                        
-                    }
-        if (!engine) throw 'engine should not be null.';
-        startRenderLoop(engine, canvas);
-        window.scene = createScene();};
-        initFunction().then(() => {sceneToRender = scene
-                    });
-
-                    // Resize
-                    window.addEventListener("resize", function () {
-                        engine.resize();
-                    });
-        </script>
-    </body>
 </html>
