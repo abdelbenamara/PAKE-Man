@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/10 21:25:03 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/04 01:23:21 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 20:08:06 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,15 +55,9 @@ const email: FastifyPluginAsync = async (scope) => {
           async (req, reply) => {
             try {
               const user = await scope.prisma.user.update({
-                where: {
-                  public_id: req.user!.public_id,
-                },
-                data: {
-                  hotp_enabled: true,
-                },
-                select: {
-                  name: true,
-                },
+                where: { public_id: req.user!.public_id },
+                data: { hotp_enabled: true },
+                select: { name: true },
               });
 
               return reply.send({
@@ -105,13 +99,8 @@ const email: FastifyPluginAsync = async (scope) => {
           async (req, reply) => {
             try {
               const user = await scope.prisma.user.findUniqueOrThrow({
-                where: {
-                  public_id: req.user!.public_id,
-                },
-                select: {
-                  email: true,
-                  name: true,
-                },
+                where: { public_id: req.user!.public_id },
+                select: { email: true, name: true },
               });
               const token = await reply.queryJwtSign({
                 public_id: req.user!.public_id,

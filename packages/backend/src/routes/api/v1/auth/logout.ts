@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 15:44:25 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/04 01:16:54 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 20:15:34 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,7 @@ const logout = (async (scope) => {
           try {
             const user = await scope.prisma.user.findUnique({
               where: { public_id: req.user!.public_id },
-              select: {
-                name: true,
-              },
+              select: { name: true },
             });
 
             return reply

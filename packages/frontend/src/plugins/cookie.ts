@@ -1,23 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   helmet.ts                                          :+:      :+:    :+:   */
+/*   cookie.ts                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/05 14:11:07 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/07 00:00:45 by abenamar         ###   ########.fr       */
+/*   Created: 2025/07/06 20:27:19 by abenamar          #+#    #+#             */
+/*   Updated: 2025/07/06 23:38:09 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import FastifyHelmetPlugin, { FastifyHelmetOptions } from "@fastify/helmet";
+import FastifyCookiePlugin from "@fastify/cookie";
 import fp from "fastify-plugin";
 
 export default fp(
   async (scope) => {
-    scope.register(FastifyHelmetPlugin, {
-      global: true,
-    } as FastifyHelmetOptions);
+    scope.register(FastifyCookiePlugin);
   },
-  { name: "helmet" },
+  { name: "cookie", dependencies: ["cors"] },
 );

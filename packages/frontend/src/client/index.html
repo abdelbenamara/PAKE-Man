@@ -8,38 +8,4 @@
     <link rel="stylesheet" href="/style.css" />
     <script type="module" defer src="/mount.ts"></script>
   </head>
-  <body class="m-0 flex h-screen w-screen flex-col bg-gray-100 p-0">
-    <!-- Navigation Bar -->
-    <nav class="flex flex-none justify-between bg-white p-4 shadow">
-      <div class="text-xl font-bold">PAKE-Man</div>
-      <div class="space-x-4">
-        <a
-          hx-get="/"
-          hx-target="#content"
-          hx-push-url="true"
-          class="text-gray-700 hover:text-blue-500"
-          >Home</a
-        >
-        <a
-          hx-get="/tournaments"
-          hx-target="#content"
-          hx-push-url="true"
-          class="text-gray-700 hover:text-blue-500"
-          >Tournaments</a
-        >
-        <a
-          hx-get="/profile"
-          hx-target="#content"
-          hx-push-url="true"
-          class="text-gray-700 hover:text-blue-500"
-          >Profile</a
-        >
-      </div>
-    </nav>
-
-    <!-- Main Content Container -->
-    <div id="content" class="flex flex-1 justify-center p-8">
-      <!-- inner -->
-    </div>
-  </body>
 </html>

@@ -45,7 +45,7 @@
     "@types/node": "~24.0.10",
     "@types/nodemailer": "~6.4.17",
     "eslint-config-prettier": "~10.1.5",
-    "neostandard": "~0.12.1",
+    "neostandard": "~0.12.2",
     "prettier-plugin-prisma": "~5.0.0",
     "prisma": "~6.11.1"
   }

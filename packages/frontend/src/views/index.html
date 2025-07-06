@@ -1,19 +1,53 @@
-<div class="text-center">
-  <h1 class="mb-4 text-4xl font-bold">Welcome to PAKE-Man</h1>
-  <button
-    hx-get="/pong"
-    hx-target="#content"
-    hx-push-url="true"
-    class="rounded bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
-  >
-    Play Now
-  </button>
+<!-- Navigation Bar -->
+<nav class="flex flex-none justify-between bg-white p-4 shadow">
+  <div class="text-xl font-bold">PAKE-Man</div>
+  <div class="space-x-4">
+    <a
+      hx-get="/home"
+      hx-target="#content"
+      hx-push-url="true"
+      class="text-gray-700 hover:text-blue-500"
+      >Home</a
+    >
+    <a
+      hx-get="/tournaments"
+      hx-target="#content"
+      hx-push-url="true"
+      class="text-gray-700 hover:text-blue-500"
+      >Tournaments</a
+    >
+    <a
+      hx-get="/profile"
+      hx-target="#content"
+      hx-push-url="true"
+      class="text-gray-700 hover:text-blue-500"
+      >Profile</a
+    >
+  </div>
+  <!-- Google Sign-In Button styled per Google guidelines -->
+  <div hx-get="/user" hx-trigger="load" preload>
+    <a
+      href="http://127.0.0.1:3001/api/v1/auth/login?provider=google"
+      class="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 hover:bg-gray-100"
+    >
+      <img
+        src="https://developers.google.com/identity/images/g-logo.png"
+        alt="Google logo"
+        class="mr-2 h-5 w-5"
+      />
+      <span class="font-medium text-gray-700">Sign in with Google</span>
+    </a>
+  </div>
+</nav>
 
-  <!-- Google Sign-In Button -->
-  <a
-    href="https://backend/api/auth/google"
-    class="inline-block rounded bg-red-600 px-6 py-3 text-white hover:bg-red-700"
-  >
-    Sign in with Google
-  </a>
+<!-- Main Content Container -->
+<div id="content" class="flex flex-1 justify-center p-8">
+  <div
+    hx-get="/home"
+    hx-target="#content"
+    hx-trigger="load"
+    preload
+    hidden
+  ></div>
+  <!-- inner -->
 </div>

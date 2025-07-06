@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/10 18:21:41 by abenamar          #+#    #+#             */
-/*   Updated: 2025/05/31 10:59:07 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 23:50:04 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ export default fp(
             },
             csrfAuth: {
               type: "apiKey",
-              name: "x-crsf-token",
+              name: "x-csrf-token",
               in: "header",
             },
           },

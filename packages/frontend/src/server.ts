@@ -6,17 +6,13 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:51:41 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/05 17:02:20 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/07 00:00:34 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import FastifyAutoLoadPlugin, {
   AutoloadPluginOptions as FastifyAutoloadPluginOptions,
 } from "@fastify/autoload";
-import FastifyHelmetPlugin, { FastifyHelmetOptions } from "@fastify/helmet";
-import FastifyRoutesStatsPlugin, {
-  FastifyRoutesStatsOptions,
-} from "@fastify/routes-stats";
 import CloseWithGrace from "close-with-grace";
 import "dotenv/config";
 import Fastify from "fastify";
@@ -44,20 +40,9 @@ const server = Fastify({
   .register(FastifyAutoLoadPlugin, {
     dir: resolve(import.meta.dirname, "plugins"),
   } as FastifyAutoloadPluginOptions)
-  .register(async (scope) => {
-    scope
-      .register(FastifyHelmetPlugin, {
-        global: true,
-        contentSecurityPolicy: false,
-      } as FastifyHelmetOptions)
-      .register(FastifyRoutesStatsPlugin, {
-        printInterval: 60_000,
-      } as FastifyRoutesStatsOptions)
-      .register(FastifyAutoLoadPlugin, {
-        dir: resolve(import.meta.dirname, "routes"),
-      } as FastifyAutoloadPluginOptions);
-  });
-
+  .register(FastifyAutoLoadPlugin, {
+    dir: resolve(import.meta.dirname, "routes"),
+  } as FastifyAutoloadPluginOptions);
 CloseWithGrace(
   {
     delay: parseInt(process.env.PAKE_MAN_SERVER_CLOSE_GRACE_DELAY!),

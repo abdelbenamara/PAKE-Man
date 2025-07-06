@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 12:43:45 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/19 23:08:17 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 23:50:07 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@ import FastifyCsrfProtectionPlugin, {
 import fp from "fastify-plugin";
 
 export namespace csrf {
-  export const cookieName = "__Host-crsf-token";
-  export const headerName = "x-crsf-token";
+  export const cookieName = "__Host-csrf-protection";
+  export const headerName = "x-csrf-token";
 }
 
 export default fp(

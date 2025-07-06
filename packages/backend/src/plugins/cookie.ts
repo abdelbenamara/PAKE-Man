@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 14:37:41 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/19 23:19:06 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 16:36:46 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ export default fp(
       parseOptions: {
         domain: undefined,
         httpOnly: true,
-        partitioned: true,
         path: "/",
         sameSite: "strict",
         secure: true,

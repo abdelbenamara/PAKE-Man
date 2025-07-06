@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:22:19 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/04 01:17:15 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/07 00:48:15 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,16 +35,16 @@ const refresh = (async (scope) => {
 
             const accessToken = req.headers.authorization!.split(" ")[1];
 
-            return auth.successful(scope, req, reply, accessToken);
+            return reply.send(auth.successful(req, reply, accessToken));
           } catch {
             try {
               req.user = await scope.prisma.user.findUnique({
-                where: {
-                  public_id: req.user!.public_id,
-                },
+                where: { public_id: req.user!.public_id },
               });
 
-              return auth.verify(scope, req, reply);
+              const payload = await auth.verify(scope, req, reply);
+
+              return reply.send(payload);
             } catch (err) {
               return reply.send(err);
             }

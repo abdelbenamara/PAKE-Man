@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:30:58 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/04 01:14:28 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 16:17:51 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,12 @@ import { FastifyPluginAsync } from "fastify";
 const login = (async (scope) => {
   scope.register(
     async (scope) => {
-      scope.post(
+      scope.get<{ Querystring: { provider: string } }>(
         "",
         {
           schema: {
-            security: [{ bearerAuth: [], csrfAuth: [] }],
             tags: ["auth"],
-            body: {
+            querystring: {
               type: "object",
               properties: {
                 provider: {
@@ -31,7 +30,7 @@ const login = (async (scope) => {
               required: ["provider"],
             },
             response: {
-              303: {
+              302: {
                 description: "Redirect to the authentication provider",
               },
               400: {
@@ -51,11 +50,12 @@ const login = (async (scope) => {
           },
         },
         async (req, reply) => {
-          const { provider } = req.body as { provider?: string };
+          const { provider } = req.query;
 
           switch (provider) {
             case "google":
-              return reply.redirect("/api/auth/google", 303);
+              return reply.redirect("/api/v1/auth/google", 302);
+
             default:
               return reply.badRequest().send({
                 error: "Invalid provider",

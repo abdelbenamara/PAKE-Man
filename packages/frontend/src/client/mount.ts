@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 14:27:16 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/05 22:15:59 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/07 00:54:33 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ import {
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import "@babylonjs/loaders";
+import "htmx-ext-preload";
 import htmx from "htmx.org";
 
 function loadPong() {
@@ -86,6 +87,7 @@ function loadPong() {
 
       // Ball movement and collisions
       ball.position.addInPlace(ballDir);
+
       if (ball.position.y > 5 || ball.position.y < -5) ballDir.y *= -1;
       if (
         ball.intersectsMesh(leftPaddle, false) ||
@@ -184,10 +186,9 @@ function hydrate() {
   };
   const path = document.location.pathname;
 
-  console.log(path);
-
   if (routes[path]) {
     routes[path]();
+    console.info(`Hydrated path: ${path}`);
   } else {
     console.warn(`No script found for path: ${path}`);
   }

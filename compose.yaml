@@ -1,0 +1,5 @@
+name: pake-man
+
+include:
+  - packages/backend/compose.yaml
+  - packages/frontend/compose.yaml

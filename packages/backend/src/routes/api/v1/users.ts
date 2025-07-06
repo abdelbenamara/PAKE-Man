@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 19:57:51 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/04 01:18:36 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 20:09:01 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,15 +59,8 @@ const users = (async (scope) => {
           async (req, reply) => {
             try {
               const users = await scope.prisma.user.findMany({
-                where: {
-                  public_id: {
-                    not: req.user!.public_id,
-                  },
-                },
-                select: {
-                  picture: true,
-                  name: true,
-                },
+                where: { public_id: { not: req.user!.public_id } },
+                select: { picture: true, name: true },
               });
 
               return reply.send(users);
@@ -115,9 +108,7 @@ const users = (async (scope) => {
           async (req, reply) => {
             try {
               const user = await scope.prisma.user.findUniqueOrThrow({
-                where: {
-                  public_id: req.user!.public_id,
-                },
+                where: { public_id: req.user!.public_id },
                 select: {
                   email: true,
                   name: true,

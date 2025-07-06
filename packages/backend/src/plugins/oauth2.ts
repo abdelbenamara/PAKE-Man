@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 10:56:21 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/19 23:08:17 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 15:41:05 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@ import fp from "fastify-plugin";
 
 export default fp(
   async (scope) => {
-    const googleOAuth2Options = {
+    scope.register(FastifyOauth2Plugin, {
       name: "google",
       scope: ["openid", "profile", "email"],
       credentials: {
@@ -29,12 +29,12 @@ export default fp(
         access_type: "offline",
         include_granted_scopes: true,
       },
-      startRedirectPath: "/api/auth/google",
+      startRedirectPath: "/api/v1/auth/google",
       schema: {
         tags: ["auth"],
       },
       cookie: {
-        path: "/api/auth/google",
+        path: "/api/v1/auth/google",
         signed: false,
       },
       userAgent: "@pake-man/backend",
@@ -43,19 +43,7 @@ export default fp(
       },
       redirectStateCookieName: "__Secure-google-oauth2-redirect-state",
       verifierCookieName: "__Secure-google-oauth2-code-verifier",
-    } as FastifyOAuth2Options;
-
-    scope
-      .register(FastifyOauth2Plugin, googleOAuth2Options)
-      .register(FastifyOauth2Plugin, {
-        ...googleOAuth2Options,
-        name: "googleV1",
-        startRedirectPath: "/api/v1/auth/google",
-        cookie: {
-          path: "/api/v1/auth/google",
-          signed: false,
-        },
-      } as FastifyOAuth2Options);
+    } as FastifyOAuth2Options);
   },
   { name: "oauth2", dependencies: ["cookie", "swagger"] },
 );

@@ -14,16 +14,10 @@
 - _PAKE_MAN_OAUTH2_GOOGLE_CLIENT_ID_
 - _PAKE_MAN_OAUTH2_GOOGLE_CLIENT_SECRET_
 
-In **each** package directory:
+In **root** directory or **each** package directory:
 
 ```console
 $ make build
-```
-
-Or to build all packages:
-
-```console
-$ make -C packages/* build
 ```
 
 ## Usage

@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 20:55:07 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/04 01:12:18 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 18:39:54 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ const hotp: FastifyPluginAsync = async (scope) => {
 
             const accessToken = await jwt.setAccessToken(reply, req.user!);
 
-            return auth.successful(scope, req, reply, accessToken);
+            return reply.send(auth.successful(req, reply, accessToken));
           } catch (err) {
             return reply.send(err);
           }

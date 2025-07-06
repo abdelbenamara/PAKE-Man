@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 14:38:00 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/26 10:42:00 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 23:35:31 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,7 @@ export namespace jwt {
     payload: jwt.UserInfo,
   ) => {
     const accessToken = await reply.accessJwtSign(payload);
-    const refreshToken = await reply.refreshJwtSign({
-      public_id: payload.public_id,
-    });
+    const refreshToken = await reply.refreshJwtSign(payload);
     const secondsIn1Day = 86_400;
     const epochIn1Day = Date.now() + secondsIn1Day * 1_000;
 
@@ -74,7 +72,6 @@ export default fp(
         secret: process.env.PAKE_MAN_JWT_SECRET_REFRESH!,
         cookie: {
           cookieName: jwt.cookieName,
-          signed: true,
         },
         sign: {
           expiresIn: "1d",

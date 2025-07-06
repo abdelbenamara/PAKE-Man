@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 22:53:25 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/04 01:10:02 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/07 00:33:48 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,12 @@ export namespace auth {
       public_id: req.user!.public_id,
     });
 
-    return reply.code(202).send({
-      message: "HOTP required for " + user.name,
+    reply.code(202);
+
+    return {
       query_token: queryToken,
       csrf_token: csrfToken,
-    });
+    };
   }
 
   export const internalServerErrorResponseSchema = {
@@ -124,6 +125,23 @@ export namespace auth {
     },
   };
 
+  export async function successful(
+    req: FastifyRequest,
+    reply: FastifyReply,
+    accessToken: string,
+  ) {
+    try {
+      const csrfToken = reply.generateCsrf({ userInfo: req.user!.public_id });
+
+      return {
+        access_token: accessToken,
+        csrf_token: csrfToken,
+      };
+    } catch (err) {
+      return err;
+    }
+  }
+
   export async function verify(
     fastify: FastifyInstance,
     req: FastifyRequest,
@@ -133,11 +151,7 @@ export namespace auth {
       const csrfToken = reply.generateCsrf({ userInfo: req.user!.public_id });
       const user = await fastify.prisma.user.findUnique({
         where: { public_id: req.user!.public_id },
-        select: {
-          email: true,
-          name: true,
-          hotp_enabled: true,
-        },
+        select: { email: true, name: true, hotp_enabled: true },
       });
 
       if (user!.hotp_enabled) {
@@ -146,34 +160,11 @@ export namespace auth {
 
       const accessToken = await jwt.setAccessToken(reply, req.user!);
 
-      return await successful(fastify, req, reply, accessToken);
+      return successful(req, reply, accessToken);
     } catch (err) {
-      return reply.send(err);
+      return err;
     }
   }
 
-  export async function successful(
-    fastify: FastifyInstance,
-    req: FastifyRequest,
-    reply: FastifyReply,
-    accessToken: string,
-  ) {
-    try {
-      const csrfToken = reply.generateCsrf({ userInfo: req.user!.public_id });
-      const user = await fastify.prisma.user.findUnique({
-        where: { public_id: req.user!.public_id },
-        select: {
-          name: true,
-        },
-      });
-
-      return reply.send({
-        message: user!.name + " logged in successfully!",
-        access_token: accessToken,
-        csrf_token: csrfToken,
-      });
-    } catch (err) {
-      return reply.send(err);
-    }
-  }
+  export const cookieName = "__Host-auth-token";
 }

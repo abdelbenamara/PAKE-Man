@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/10 17:14:23 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/05 14:24:34 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/06 15:31:57 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,6 @@ const server = Fastify({
       } as FastifyRoutesStatsOptions)
       .register(FastifyAutoLoadPlugin, {
         dir: resolve(import.meta.dirname, "routes"),
-      } as FastifyAutoloadPluginOptions)
-      .register(FastifyAutoLoadPlugin, {
-        dir: resolve(import.meta.dirname, "routes", "api", "v1"),
-        options: { prefix: "/api" },
       } as FastifyAutoloadPluginOptions);
   });
 
@@ -74,7 +70,7 @@ CloseWithGrace(
     }
 
     await server.close();
-  }
+  },
 );
 
 try {
