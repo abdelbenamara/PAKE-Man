@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pages.ts                                           :+:      :+:    :+:   */
+/*   root.ts                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 14:20:51 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/09 01:39:24 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/09 10:42:40 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ import { FastifyPluginAsync } from "fastify";
 import { includeFile } from "ghtml/includeFile.js";
 import { resolve } from "node:path";
 
-const pages: FastifyPluginAsync = async (scope) => {
+const root: FastifyPluginAsync = async (scope) => {
   scope.register(
     async (scope) => {
       scope.addLayout(
@@ -26,11 +26,12 @@ const pages: FastifyPluginAsync = async (scope) => {
           );
 
           return scope.html`
-            <body !${reply.htmxHeaders} class="bg-gray-100 m-0 p-0 flex flex-col min-h-screen">
+            <main !${reply.htmxHeaders} !${views.mainClass}>
               !${view[0]}
                 !${inner}
               !${view[1]}
-            </body>`;
+            </main>
+          `;
         },
         { skipOnHeader: "hx-request" },
       );
@@ -40,7 +41,7 @@ const pages: FastifyPluginAsync = async (scope) => {
           onRequest: [scope.htmxHeadersFromAuthCookie],
         },
         async (_req, reply) => {
-          return reply.html`<div hx-post="/home" hx-target="#content" hx-trigger="load" class="hidden"></div>`;
+          return reply.html`!${views.homeHtml}`;
         },
       );
 
@@ -64,4 +65,4 @@ const pages: FastifyPluginAsync = async (scope) => {
   );
 };
 
-export default pages;
+export default root;
