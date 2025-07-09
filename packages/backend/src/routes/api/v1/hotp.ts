@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 20:55:07 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/06 18:39:54 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/09 03:06:59 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ const hotp: FastifyPluginAsync = async (scope) => {
   scope.register(
     async (scope) => {
       scope.post(
-        "/verify",
+        "/verification",
         {
           onRequest: [scope.authenticateQueryJwt, scope.csrfProtection],
           schema: {
@@ -40,6 +40,7 @@ const hotp: FastifyPluginAsync = async (scope) => {
             response: {
               ...auth.successfulResponseSchema,
               ...auth.unauthorizedResponseSchema,
+              ...auth.internalServerErrorResponseSchema,
             },
           },
         },
@@ -47,7 +48,7 @@ const hotp: FastifyPluginAsync = async (scope) => {
           try {
             const { code } = req.body as { code: string };
 
-            if (req.hotpValidate({ token: code }) === null) {
+            if (!req.hotpValidate({ token: code })) {
               return reply.unauthorized().send({ error: "Invalid HOTP code" });
             }
 

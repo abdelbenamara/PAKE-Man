@@ -6,9 +6,13 @@
     "noUnusedParameters": true,
     "strict": true,
     /* Modules */
+    "baseUrl": "./",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "noUncheckedSideEffectImports": true,
+    "paths": {
+      "#*": ["src/*"]
+    },
     "resolveJsonModule": true,
     /* Emit */
     "outDir": "dist",
@@ -32,5 +36,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/client/*.ts"]
+  "exclude": ["src/client/**/*.ts"]
 }

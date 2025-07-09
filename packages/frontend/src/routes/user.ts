@@ -6,44 +6,57 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 21:27:02 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/07 00:12:09 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/09 02:17:41 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import fetch from "cross-fetch";
+import { html } from "#plugins/html.js";
+import { api } from "#utils/api.js";
+import { views } from "#utils/views.js";
 import { FastifyPluginAsync } from "fastify";
+import { includeFile } from "ghtml/includeFile.js";
+import { resolve } from "node:path";
 
 const user: FastifyPluginAsync = async (scope) => {
+  const route = "user";
+
   scope.register(
     async (scope) => {
-      scope.get("", {}, async (req, reply) => {
-        const response = await fetch(
-          process.env.PAKE_MAN_BACKEND_URL! + "/api/v1/users/me",
-          {
-            headers: {
-              Authorization: req.headers.authorization!,
-              "x-csrf-token": req.headers["x-csrf-token"] as string,
-              Cookie: req.headers.cookie as string,
-            },
-          },
-        );
+      const menu = "menu";
+      const profile = "profile";
+      const path = resolve(views.path, `${route}`);
 
-        if (!response.ok) {
-          return reply.unauthorized();
-        }
+      scope
+        .post(`/${menu}`, async (req, reply) => {
+          const response = await api.get("/api/v1/users/me", req.headers);
 
-        const user = await response.json();
+          if (!response.ok) {
+            return reply.unauthorized();
+          }
 
-        return reply.html`
-          <!-- User Profile Picture and Name -->
-          <div class="flex items-center">
-            <img src="${user.picture}" alt="Profile Picture" class="w-8 h-8 rounded-full mr-2" />
-            <span class="text-gray-700 font-medium">${user.name}</span>
-          </div>
-        `;
-      });
+          const view = includeFile(resolve(path, `${menu}.html`)).split(
+            html.layoutSeparator,
+          );
+          const payload = await response.json();
+          const { picture } = payload as { picture: string };
+
+          return reply.html`!${view[0]}<img src="${picture}" alt="Profile Picture" class="w-8 h-8 rounded-full" />!${view[1]}`;
+        })
+        .get(`/${profile}`, async (req, reply) => {
+          const response = await api.get("/api/v1/users/me", req.headers);
+
+          if (!response.ok) {
+            return reply.redirect("/");
+          }
+
+          const view = includeFile(resolve(path, `${profile}.html`)).split(
+            html.layoutSeparator,
+          );
+
+          return reply.html`!${view}`;
+        });
     },
-    { prefix: "/user" },
+    { prefix: `/${route}` },
   );
 };
 

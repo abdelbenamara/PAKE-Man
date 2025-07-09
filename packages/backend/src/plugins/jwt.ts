@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 14:38:00 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/06 23:35:31 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/08 20:01:35 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,17 @@ import FastifyJWTPlugin, {
   FastifyJwtNamespace,
   FastifyJWTOptions,
 } from "@fastify/jwt";
-import { FastifyReply, FastifyRequest } from "fastify";
+import {
+  FastifyReply,
+  FastifyRequest,
+  onRequestAsyncHookHandler,
+} from "fastify";
 import fp from "fastify-plugin";
 
 export namespace jwt {
-  export const cookieName = "__Host-refresh-token";
-
   export type UserInfo = Pick<User, "public_id">;
 
+  export const cookieName = "__Host-refresh-token";
   export const setAccessToken = async (
     reply: FastifyReply,
     payload: jwt.UserInfo,
@@ -39,11 +42,6 @@ export namespace jwt {
 
     return accessToken;
   };
-
-  export type authenticateFn = (
-    req: FastifyRequest,
-    reply: FastifyReply,
-  ) => Promise<void>;
 }
 
 export default fp(
@@ -124,9 +122,9 @@ declare module "fastify" {
     extends FastifyJwtNamespace<{ namespace: "access" }>,
       FastifyJwtNamespace<{ namespace: "query" }>,
       FastifyJwtNamespace<{ namespace: "refresh" }> {
-    authenticateAccessJwt: jwt.authenticateFn;
-    authenticateQueryJwt: jwt.authenticateFn;
-    authenticateRefreshJwt: jwt.authenticateFn;
+    authenticateAccessJwt: onRequestAsyncHookHandler;
+    authenticateQueryJwt: onRequestAsyncHookHandler;
+    authenticateRefreshJwt: onRequestAsyncHookHandler;
   }
 
   interface FastifyRequest {

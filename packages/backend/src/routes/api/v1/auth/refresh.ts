@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:22:19 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/07 00:48:15 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/08 23:36:04 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,17 @@ import { FastifyPluginAsync } from "fastify";
 const refresh = (async (scope) => {
   scope.register(
     async (scope) => {
-      scope.get(
+      scope.post(
         "",
         {
           onRequest: [scope.authenticateRefreshJwt, scope.csrfProtection],
           schema: {
-            security: [{ bearerAuth: [], csrfAuth: [] }],
+            security: [{ csrfAuth: [] }],
             tags: ["auth"],
             response: {
               ...auth.successfulResponseSchema,
               ...auth.unauthorizedResponseSchema,
+              ...auth.internalServerErrorResponseSchema,
             },
           },
         },

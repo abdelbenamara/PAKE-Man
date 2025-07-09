@@ -25,7 +25,7 @@ $ make build
 To **build** and **start**:
 
 ```console
-$ docker compose up [--build] [-d]
+$ docker compose up [--build] [-d] [--remove-orphans]
 ```
 
 To **monitor**:

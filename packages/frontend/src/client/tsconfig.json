@@ -9,10 +9,14 @@
     "strict": true,
     /* Modules */
     "allowImportingTsExtensions": true,
+    "baseUrl": "./",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noResolve": false,
     "noUncheckedSideEffectImports": true,
+    "paths": {
+      "#*": ["src/*"]
+    },
     "resolveJsonModule": true,
     /* Emit */
     "noEmit": true,

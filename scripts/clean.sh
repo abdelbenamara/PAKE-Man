@@ -8,7 +8,7 @@ parentdir=$(cd "$scriptdir/.." && pwd)
 main() {
   for pkg in $parentdir/packages/*/; do \
 		if [ -d "$pkg" ]; then \
-			rm -f "$pkg/package-lock.json" ; \
+			make -C "$pkg" clean; \
 		fi; \
 	done
 	echo "Cleaned package-lock.json files in all packages."

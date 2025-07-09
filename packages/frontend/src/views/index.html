@@ -1,34 +1,33 @@
 <!-- Navigation Bar -->
-<nav class="flex flex-none justify-between bg-white p-4 shadow">
-  <div class="text-xl font-bold">PAKE-Man</div>
-  <div class="space-x-4">
+<nav class="flex flex-none items-center justify-between bg-white p-4 shadow">
+  <!-- Left: Logo/Home & Links -->
+  <div hx-target="#content" class="flex items-center space-x-8">
     <a
-      hx-get="/home"
-      hx-target="#content"
-      hx-push-url="true"
-      class="text-gray-700 hover:text-blue-500"
-      >Home</a
+      hx-post="/home"
+      hx-push-url="/"
+      class="cursor-pointer text-xl font-bold text-gray-900 hover:text-gray-700 focus:outline-none"
     >
+      PAKE-Man
+    </a>
     <a
       hx-get="/tournaments"
-      hx-target="#content"
       hx-push-url="true"
-      class="text-gray-700 hover:text-blue-500"
-      >Tournaments</a
+      class="cursor-pointer text-gray-700 hover:text-blue-500 focus:outline-none"
     >
-    <a
-      hx-get="/profile"
-      hx-target="#content"
-      hx-push-url="true"
-      class="text-gray-700 hover:text-blue-500"
-      >Profile</a
-    >
+      Tournaments
+    </a>
   </div>
-  <!-- Google Sign-In Button styled per Google guidelines -->
-  <div hx-get="/user" hx-trigger="load" preload>
+  <!-- Right: Auth Section -->
+  <div
+    hx-post="/user/menu"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-trigger="load"
+    class="m-0 flex items-center p-0"
+  >
     <a
       href="http://127.0.0.1:3001/api/v1/auth/login?provider=google"
-      class="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 hover:bg-gray-100"
+      class="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 hover:bg-gray-100 focus:outline-none"
     >
       <img
         src="https://developers.google.com/identity/images/g-logo.png"
@@ -39,15 +38,7 @@
     </a>
   </div>
 </nav>
-
 <!-- Main Content Container -->
-<div id="content" class="flex flex-1 justify-center p-8">
-  <div
-    hx-get="/home"
-    hx-target="#content"
-    hx-trigger="load"
-    preload
-    hidden
-  ></div>
+<main id="content" class="w-full flex-grow p-8">
   <!-- inner -->
-</div>
+</main>

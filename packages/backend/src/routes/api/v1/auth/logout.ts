@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 15:44:25 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/06 20:15:34 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/09 01:08:09 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ import { FastifyPluginAsync } from "fastify";
 const logout = (async (scope) => {
   scope.register(
     async (scope) => {
-      scope.get(
+      scope.post(
         "",
         {
           onRequest: [scope.authenticateAccessJwt, scope.csrfProtection],
@@ -26,41 +26,20 @@ const logout = (async (scope) => {
             security: [{ bearerAuth: [], csrfAuth: [] }],
             tags: ["auth"],
             response: {
-              200: {
+              204: {
                 description: "Successful response",
-                content: {
-                  "application/json": {
-                    schema: {
-                      example: {
-                        message: "Player#1 successfully logged out.",
-                      },
-                      type: "object",
-                      properties: {
-                        message: { type: "string" },
-                      },
-                    },
-                  },
-                },
               },
               ...auth.unauthorizedResponseSchema,
               ...auth.internalServerErrorResponseSchema,
             },
           },
         },
-        async (req, reply) => {
-          try {
-            const user = await scope.prisma.user.findUnique({
-              where: { public_id: req.user!.public_id },
-              select: { name: true },
-            });
-
-            return reply
-              .clearCookie(csrf.cookieName)
-              .clearCookie(jwt.cookieName)
-              .send({ message: user!.name + " successfully logged out." });
-          } catch (err) {
-            return reply.send(err);
-          }
+        async (_req, reply) => {
+          return reply
+            .clearCookie(csrf.cookieName)
+            .clearCookie(jwt.cookieName)
+            .code(204)
+            .send();
         },
       );
     },

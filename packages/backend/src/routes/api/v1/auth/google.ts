@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 10:14:01 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/07 00:49:45 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/09 02:38:42 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,11 @@ async function getUserFromGoogleInfo(
   fastify: FastifyInstance,
   info: Readonly<GoogleUserInfo>,
 ) {
-  const user = ((await fastify.prisma.user.findUnique({
+  const match = await fastify.prisma.user.findUnique({
     where: { google_id: info.sub },
     select: { private_id: true, email: true },
-  })) || {}) as Partial<User>;
+  });
+  const user: Partial<User> = match || {};
 
   if (!user.private_id) {
     Object.assign(user, await registerUserFromGoogleInfo(fastify, info));
@@ -74,7 +75,13 @@ const google: FastifyPluginAsync = async (scope) => {
         {
           schema: {
             tags: ["auth"],
-            response: auth.successfulResponseSchema,
+            response: {
+              ...auth.successfulResponseSchema,
+              302: {
+                description: "Redirect to the frontend home page",
+              },
+              ...auth.internalServerErrorResponseSchema,
+            },
           },
         },
         async (req, reply) => {
@@ -94,17 +101,14 @@ const google: FastifyPluginAsync = async (scope) => {
             const payload = await auth.verify(scope, req, reply);
 
             if (frontendUrl) {
-              const secondsIn5Minutes = 60 * 5;
-              const epochIn5Minutes = Date.now() + secondsIn5Minutes * 1_000;
+              const secondsIn1Minute = 60;
+              const epochIn1Minute = Date.now() + secondsIn1Minute * 1_000;
 
               reply.cookie(auth.cookieName, JSON.stringify(payload), {
-                maxAge: secondsIn5Minutes,
-                expires: new Date(epochIn5Minutes),
+                maxAge: secondsIn1Minute,
+                expires: new Date(epochIn1Minute),
                 sameSite: "lax",
-                signed: false,
               });
-
-              scope.log.warn(JSON.stringify(payload));
 
               return reply.redirect(frontendUrl);
             }

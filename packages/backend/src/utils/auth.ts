@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 22:53:25 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/07 00:33:48 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/08 13:53:18 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ export namespace auth {
     const hotpToken = reply.htopGenerate();
 
     await reply.sendMail({
-      from: "no-reply@pake-man.fun",
+      from: `no-reply@${process.env.PAKE_MAN_DOMAIN_NAME}`,
       to: user.email,
       subject: `Pake-Man Security Code: ${hotpToken}`,
       html: `
@@ -59,22 +59,6 @@ export namespace auth {
     };
   }
 
-  export const internalServerErrorResponseSchema = {
-    500: {
-      description: "Internal Server Error",
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              error: { type: "string" },
-            },
-          },
-        },
-      },
-    },
-  };
-
   export const successfulResponseSchema = {
     200: {
       description: "Successful response",
@@ -83,7 +67,6 @@ export namespace auth {
           schema: {
             type: "object",
             properties: {
-              message: { type: "string" },
               access_token: { type: "string" },
               csrf_token: { type: "string" },
             },
@@ -98,7 +81,6 @@ export namespace auth {
           schema: {
             type: "object",
             properties: {
-              message: { type: "string" },
               query_token: { type: "string" },
               csrf_token: { type: "string" },
             },
@@ -106,12 +88,27 @@ export namespace auth {
         },
       },
     },
-    ...internalServerErrorResponseSchema,
   };
 
   export const unauthorizedResponseSchema = {
     401: {
       description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              error: { type: "string" },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  export const internalServerErrorResponseSchema = {
+    500: {
+      description: "Internal Server Error",
       content: {
         "application/json": {
           schema: {

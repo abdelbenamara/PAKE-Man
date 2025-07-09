@@ -1,0 +1,27 @@
+<details class="relative inline-block self-start">
+  <summary
+    class="inline-flex h-10 min-w-max cursor-pointer list-none items-center rounded bg-white px-4 py-2 hover:bg-gray-100 focus:outline-none"
+  >
+    <!-- inner -->
+  </summary>
+  <div
+    class="absolute right-0 z-10 mt-2 flex min-w-max flex-col rounded bg-white shadow-lg"
+  >
+    <a
+      hx-get="/user/profile"
+      hx-target="#content"
+      hx-push-url="true"
+      hx-on-htmx-before-request="this.closest('details').removeAttribute('open')"
+      class="cursor-pointer px-4 py-2 text-gray-700 hover:bg-gray-100"
+    >
+      Profile
+    </a>
+    <a
+      hx-post="/logout"
+      hx-on-htmx-before-request="this.closest('details').removeAttribute('open')"
+      class="cursor-pointer px-4 py-2 text-gray-700 hover:bg-gray-100"
+    >
+      Sign Out
+    </a>
+  </div>
+</details>

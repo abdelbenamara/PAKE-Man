@@ -12,22 +12,25 @@
     "debug": "node --inspect dist/server.js",
     "start": "node dist/server.js"
   },
+  "imports": {
+    "#*": "./dist/*"
+  },
   "dependencies": {
     "@fastify/autoload": "~6.3.1",
     "@fastify/cookie": "~11.0.2",
     "@fastify/cors": "~11.0.1",
     "@fastify/etag": "~6.0.3",
+    "@fastify/formbody": "~8.0.2",
     "@fastify/helmet": "~13.0.1",
     "@fastify/one-line-logger": "~2.0.2",
     "@fastify/sensible": "~6.0.3",
     "@fastify/static": "~8.2.0",
     "close-with-grace": "~2.2.0",
     "cross-fetch": "~4.1.0",
-    "dotenv": "~17.0.1",
+    "dotenv": "~17.1.0",
     "fastify": "~5.4.0",
     "fastify-html": "~0.7.1",
     "ghtml": "~3.1.3",
-    "htmx-ext-preload": "~2.1.1",
     "htmx.org": "~2.0.6"
   },
   "devDependencies": {
@@ -41,6 +44,7 @@
     "postcss-load-config": "~6.0.1",
     "prettier-plugin-tailwindcss": "~0.6.13",
     "tailwindcss": "~4.1.11",
-    "vite": "~7.0.2"
+    "vite": "~7.0.3",
+    "vite-tsconfig-paths": "~5.1.4"
   }
 }

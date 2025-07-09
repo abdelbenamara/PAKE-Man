@@ -1,27 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vite.config.js                                     :+:      :+:    :+:   */
+/*   formbody.ts                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/11 08:56:20 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/07 20:53:07 by abenamar         ###   ########.fr       */
+/*   Created: 2025/07/09 00:15:18 by abenamar          #+#    #+#             */
+/*   Updated: 2025/07/09 00:17:30 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { resolve } from "node:path";
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import FastifyFormbodyPlugin, {
+  FastifyFormbodyOptions,
+} from "@fastify/formbody";
+import fp from "fastify-plugin";
 
-/**
- * @type {import('vite').UserConfig}
- */
-export default defineConfig({
-  root: resolve(import.meta.dirname, "src", "client"),
-  build: {
-    outDir: resolve(import.meta.dirname, "dist", "client"),
-    emptyOutDir: true,
+export default fp(
+  async (scope) => {
+    scope.register(FastifyFormbodyPlugin, {
+      bodyLimit: undefined,
+    } as FastifyFormbodyOptions);
   },
-  plugins: [tsconfigPaths()],
-});
+  { name: "formbody" },
+);
