@@ -164,22 +164,22 @@ export function createGameScene(engine: BABYLON.Engine, canvas: HTMLCanvasElemen
   light.intensity = 0.7;
 
   // SUNLIGHT
-  const sunLight = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(-1, -2, -1), scene);
-  sunLight.position = new BABYLON.Vector3(50, 100, 50);
-  sunLight.intensity = 1.0;
-  const sun = BABYLON.MeshBuilder.CreateSphere("sun", { diameter: 10 }, scene);
-  sun.position = sunLight.position;
+  // const sunLight = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(-1, -2, -1), scene);
+  // sunLight.position = new BABYLON.Vector3(50, 100, 50);
+  // sunLight.intensity = 1.0;
+  // const sun = BABYLON.MeshBuilder.CreateSphere("sun", { diameter: 10 }, scene);
+  // sun.position = sunLight.position;
 
   const sunMat = new BABYLON.StandardMaterial("sunMat", scene);
   sunMat.emissiveColor = new BABYLON.Color3(1.0, 0.8, 0.0); // Sun yellow
-  sun.material = sunMat;
+  // sun.material = sunMat;
   const glowLayer = new BABYLON.GlowLayer("glow", scene);
   glowLayer.intensity = 0.8;
-  const lensFlareSystem = new BABYLON.LensFlareSystem("lensFlareSystem", sun, scene);
+  // const lensFlareSystem = new BABYLON.LensFlareSystem("lensFlareSystem", sun, scene);
 
-  new BABYLON.LensFlare(0.5, 0, new BABYLON.Color3(1, 1, 0.8), "https://assets.babylonjs.com/lensflare/lensflare0.png", lensFlareSystem);
-  new BABYLON.LensFlare(0.2, 0.3, new BABYLON.Color3(1, 0.8, 0.5), "https://assets.babylonjs.com/lensflare/lensflare2.png", lensFlareSystem);
-  new BABYLON.LensFlare(0.1, 0.6, new BABYLON.Color3(1, 1, 1), "https://assets.babylonjs.com/lensflare/lensflare3.png", lensFlareSystem);
+  // new BABYLON.LensFlare(0.5, 0, new BABYLON.Color3(1, 1, 0.8), "https://assets.babylonjs.com/lensflare/lensflare0.png", lensFlareSystem);
+  // new BABYLON.LensFlare(0.2, 0.3, new BABYLON.Color3(1, 0.8, 0.5), "https://assets.babylonjs.com/lensflare/lensflare2.png", lensFlareSystem);
+  // new BABYLON.LensFlare(0.1, 0.6, new BABYLON.Color3(1, 1, 1), "https://assets.babylonjs.com/lensflare/lensflare3.png", lensFlareSystem);
 
   // FIELD BOUNDS
   const halfW = CONSTANTS.FIELD_WIDTH / 2;
