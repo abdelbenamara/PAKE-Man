@@ -1,10 +1,13 @@
 import * as GUI from '@babylonjs/gui';
 import * as BABYLON from '@babylonjs/core';
+import { SkyMaterial } from '@babylonjs/materials/sky';
 
 
 import * as CONSTANTS from './constants';
 import { inputMap, registerInput } from './input';
 import { createUI, showWinPopup, createSettingsMenu } from './ui';
+import { Theme, blueTheme } from './themes';
+import { onThemeChange, stateSelectedTheme } from './state';
 
 export let gameStarted = false;
 export let gamePaused = false;
@@ -12,28 +15,11 @@ export let leftScore = 0, rightScore = 0;
 export let spaceHandled = false;
 export let speed = CONSTANTS.INITIAL_BALL_SPEED;
 export let velocity = new BABYLON.Vector3(speed, speed, 0);
+export let selectedTheme = blueTheme;
 
 let ball: BABYLON.Mesh;
-// let speed: number;
-// let velocity: BABYLON.Vector3;
-// localStorage lets you store data persistently in the browser
 let settings = JSON.parse(localStorage.getItem('pongSettings')) || CONSTANTS.DEFAULTS;
-// let settings: PongSettings;
 let dt: BABYLON.DynamicTexture;
-
-// interface PongSettings {
-//   volume: number;
-//   difficulty: string;
-//   paddleSize: number;
-//   // add any other settings keys you use
-// }
-
-// const DEFAULTS: PongSettings = {
-//   volume: 0.5,
-//   difficulty: 'medium',
-//   paddleSize: 1,
-//   // fill in your default values here
-// };
 
 // HELPER FUNCTIONS
 export function setGameStarted(value: boolean) {
@@ -70,7 +56,13 @@ export function setVelocity(value: BABYLON.Vector3) {
 
 export function reset(dir) {
   ball.position.set(0, 0, 0);
-  velocity = new BABYLON.Vector3(speed * dir, speed, 0);
+  const baseSpeed = speed;
+
+  const angle = (Math.random() - 0.5) * Math.PI / 3; // ±30 degrees
+  const vx = Math.cos(angle) * baseSpeed * dir;
+  const vy = Math.sin(angle) * baseSpeed;
+
+  velocity = new BABYLON.Vector3(vx, vy, 0);
 }
 
 export function updateScoreTexture(text) {
@@ -83,6 +75,60 @@ export function updateScoreTexture(text) {
   dt.drawText(text, width / 2, height / 2 + 20,
     "bold 72px Valorant, sans-serif", "white", "transparent", true
   );
+}
+
+function applyThemeToGame(scene: BABYLON.Scene, theme: Theme, objects: {
+  ball: BABYLON.Mesh,
+  leftPaddle: BABYLON.Mesh,
+  rightPaddle: BABYLON.Mesh,
+  particleSystem: BABYLON.ParticleSystem,
+  gridMat: BABYLON.StandardMaterial
+}) {
+  // Fog color
+  scene.fogColor = theme.fogColor ?? new BABYLON.Color3(0, 0, 0);
+
+  // Ball material
+  const ballMat = objects.ball.material as BABYLON.StandardMaterial;
+  if (ballMat) {
+    ballMat.emissiveColor = theme.ballColor ?? new BABYLON.Color3(1, 1, 1);
+  }
+
+  // Paddles
+  [objects.leftPaddle, objects.rightPaddle].forEach(paddle => {
+    const mat = paddle.material as BABYLON.StandardMaterial;
+    if (mat) {
+      mat.emissiveColor = theme.paddleColor ?? new BABYLON.Color3(0.6, 0.6, 0.6);
+    }
+  });
+
+  // Particles
+  if (objects.particleSystem) {
+    objects.particleSystem.color1 = theme.trailColor1 ?? new BABYLON.Color4(1.0, 1.0, 1.0, 1.0);
+    objects.particleSystem.color2 = theme.trailColor2 ?? new BABYLON.Color4(0.0, 0.5, 1.0, 1.0);
+    objects.particleSystem.colorDead = theme.trailDeadColor ?? new BABYLON.Color4(0, 0, 0, 0);
+  }
+
+  // Grid
+  if (objects.gridMat) {
+    objects.gridMat.emissiveColor = theme.gridColor ?? new BABYLON.Color3(0.2, 0.6, 0.8);
+  }
+
+  // Sun - not done yet
+  if (theme.name === 'Orange') {
+    addSun(scene);
+  }
+  else if (theme.name === 'Blue') {
+    addMoon(scene);
+  }
+}
+
+function addSun(scene: BABYLON.Scene) {
+  //     const skyMaterial = new SkyMaterial("skyMaterial", scene);
+  // skyMaterial.backFaceCulling = false;
+}
+
+function addMoon(scene: BABYLON.Scene) {
+
 }
 
 export function createGameScene(engine: BABYLON.Engine, canvas: HTMLCanvasElement): BABYLON.Scene {
@@ -100,18 +146,40 @@ export function createGameScene(engine: BABYLON.Engine, canvas: HTMLCanvasElemen
   const { startButton, winPopup, winText, settingsPanel, playAgainButton } = createUI(scene);
   registerInput(scene);
 
-  // CAMERA
+  // CAMERA - original display
+  // const camera = new BABYLON.ArcRotateCamera(
+  //   "cam", Math.PI / 2, Math.PI / 2,
+  //   CONSTANTS.PADDLE_OFFSET_X * 4, BABYLON.Vector3.Zero(), scene
+  // );
   const camera = new BABYLON.ArcRotateCamera(
-    "cam", Math.PI / 2, Math.PI / 2,
-    CONSTANTS.PADDLE_OFFSET_X * 4, BABYLON.Vector3.Zero(), scene
+    "cam", -30, 1.5,
+    CONSTANTS.PADDLE_OFFSET_X, BABYLON.Vector3.Zero(), scene
   );
   camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
   camera.attachControl(canvas, true);
-  camera.radius = 13;
+  camera.radius = 25;
 
   // LIGHT
   const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
   light.intensity = 0.7;
+
+  // SUNLIGHT
+  const sunLight = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(-1, -2, -1), scene);
+  sunLight.position = new BABYLON.Vector3(50, 100, 50);
+  sunLight.intensity = 1.0;
+  const sun = BABYLON.MeshBuilder.CreateSphere("sun", { diameter: 10 }, scene);
+  sun.position = sunLight.position;
+
+  const sunMat = new BABYLON.StandardMaterial("sunMat", scene);
+  sunMat.emissiveColor = new BABYLON.Color3(1.0, 0.8, 0.0); // Sun yellow
+  sun.material = sunMat;
+  const glowLayer = new BABYLON.GlowLayer("glow", scene);
+  glowLayer.intensity = 0.8;
+  const lensFlareSystem = new BABYLON.LensFlareSystem("lensFlareSystem", sun, scene);
+
+  new BABYLON.LensFlare(0.5, 0, new BABYLON.Color3(1, 1, 0.8), "https://assets.babylonjs.com/lensflare/lensflare0.png", lensFlareSystem);
+  new BABYLON.LensFlare(0.2, 0.3, new BABYLON.Color3(1, 0.8, 0.5), "https://assets.babylonjs.com/lensflare/lensflare2.png", lensFlareSystem);
+  new BABYLON.LensFlare(0.1, 0.6, new BABYLON.Color3(1, 1, 1), "https://assets.babylonjs.com/lensflare/lensflare3.png", lensFlareSystem);
 
   // FIELD BOUNDS
   const halfW = CONSTANTS.FIELD_WIDTH / 2;
@@ -198,6 +266,16 @@ export function createGameScene(engine: BABYLON.Engine, canvas: HTMLCanvasElemen
 
   // Start the particle system
   particleSystem.start();
+
+  onThemeChange((theme) => {
+    applyThemeToGame(scene, theme, {
+      ball,
+      leftPaddle,
+      rightPaddle,
+      particleSystem,
+      gridMat
+    });
+  });
 
   // Holographic materials
   [leftPaddle, rightPaddle, ball].forEach(mesh => {
@@ -322,6 +400,7 @@ export function createGameScene(engine: BABYLON.Engine, canvas: HTMLCanvasElemen
       }
       reset(1);
     }
+
   });
 
   return scene;

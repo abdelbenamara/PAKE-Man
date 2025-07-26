@@ -1,10 +1,12 @@
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
-import { gameStarted, gamePaused, setGameStarted, setGamePaused, setLeftScore, setRightScore, reset, updateScoreTexture, speed, setSpeed, velocity, setVelocity } from "./game";
+import { isGameStarted, isGamePaused, setGameStarted, setGamePaused, setLeftScore, setRightScore, reset, updateScoreTexture, speed, setSpeed, velocity, setVelocity } from "./game";
 import * as CONSTANTS from './constants';
 import { blueTheme, orangeTheme, availableThemes, Theme } from './themes';
+import { setTheme } from './state';
 
 let currentTheme: Theme = blueTheme;
+export let hasGameEverStarted = false;
 
 function applyTheme(theme: Theme, ui: {
   settingsPanel: GUI.Rectangle,
@@ -12,7 +14,8 @@ function applyTheme(theme: Theme, ui: {
   themeButtons: GUI.Button[],
   startButton: GUI.Button,
   menuButton: GUI.Button,
-  playAgainButton: GUI.Button
+  playAgainButton: GUI.Button,
+  speedSlider: GUI.Slider
 }) {
   currentTheme = theme;
   // (Re)apply theme to UI components
@@ -22,6 +25,7 @@ function applyTheme(theme: Theme, ui: {
   ui.startButton.background = theme.primaryBackground;
   ui.menuButton.background = theme.primaryBackground;
   ui.playAgainButton.background = theme.primaryBackground;
+  ui.speedSlider.background = theme.primaryBackground;
 
 
   // Update theme button colors to match new theme
@@ -51,6 +55,8 @@ export function createUI(scene: BABYLON.Scene): UIElements {
   startButton.background = "rgba(26, 153, 230, 0.3)";
   startButton.paddingTop = "10px";
   startButton.fontFamily = "Valorant, sans-serif";
+  startButton.thickness = 3;
+  // startButton.cornerRadius = 0;
   // Center on screen
   startButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
   startButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
@@ -61,6 +67,7 @@ export function createUI(scene: BABYLON.Scene): UIElements {
     if (winPopup) winPopup.isVisible = false;
     setGamePaused(false);
     setGameStarted(true);
+    hasGameEverStarted = true;
     startButton.isVisible = false;
   });
 
@@ -68,6 +75,7 @@ export function createUI(scene: BABYLON.Scene): UIElements {
   winPopup.width = "400px";
   winPopup.height = "200px";
   winPopup.thickness = 2;
+  winPopup.thickness = 3;
   winPopup.color = "white";
   winPopup.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
   winPopup.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
@@ -96,6 +104,7 @@ export function createUI(scene: BABYLON.Scene): UIElements {
   playAgainButton.background = "rgba(26, 153, 230, 0.3)";
   playAgainButton.paddingTop = "10px";
   playAgainButton.fontFamily = "Valorant, sans-serif";
+  playAgainButton.thickness = 3;
 
   playAgainButton.onPointerUpObservable.add(() => {
     settingsPanel.isVisible = false;
@@ -145,6 +154,7 @@ export function createSettingsMenu(scene, { velocity, winPopup, startButton, set
   menuButton.paddingTop = "10px";
   menuButton.paddingLeft = "10px";
   menuButton.fontFamily = "Valorant, sans-serif";
+  menuButton.thickness = 3;
   menuButton.background = "rgba(26, 153, 230, 0.3)";
   menuButton.top = "10px";
   menuButton.left = "10px";
@@ -156,7 +166,9 @@ export function createSettingsMenu(scene, { velocity, winPopup, startButton, set
   const settingsPanel = new GUI.Rectangle("settingsPanel");
   settingsPanel.width = "300px";
   settingsPanel.height = "220px";
-  settingsPanel.cornerRadius = 10;
+  settingsPanel.fontFamily = "Valorant, sans-serif";
+  settingsPanel.thickness = 3;
+  settingsPanel.cornerRadius = 0;
   settingsPanel.color = "white";
   settingsPanel.thickness = 2;
   settingsPanel.background = currentTheme.primaryBackground;
@@ -172,26 +184,14 @@ export function createSettingsMenu(scene, { velocity, winPopup, startButton, set
   stack.paddingTop = "10px";
   settingsPanel.addControl(stack);
 
-  // — Map buttons —
-  // ["Map 1", "Map 2"].forEach((label, i) => {
-  //   const btn = GUI.Button.CreateSimpleButton(`mapBtn${i}`, label);
-  //   btn.width = "200px";
-  //   btn.height = "40px";
-  //   btn.marginTop = "5px";
-  //   btn.color = "white";
-  //   btn.background = "rgba(26, 153, 230, 0.3)";
-  //   btn.onPointerUpObservable.add(() => {
-  //     console.log("Loading", label);
-  //     loadMap && loadMap(label.toLowerCase().replace(" ", ""));
-  //   });
-  //   stack.addControl(btn);
-  // });
   const themeButtons: GUI.Button[] = [];
   availableThemes.forEach((themeOption) => {
     const themeBtn = GUI.Button.CreateSimpleButton(`themeBtn_${themeOption.name}`, themeOption.name);
     themeBtn.width = "200px";
     themeBtn.height = "40px";
     themeBtn.color = "white";
+    themeBtn.thickness = 2;
+    themeBtn.paddingBottom = "3px"
     themeBtn.background = currentTheme.primaryBackground;
     themeBtn.onPointerUpObservable.add(() => {
       applyTheme(themeOption, {
@@ -200,8 +200,10 @@ export function createSettingsMenu(scene, { velocity, winPopup, startButton, set
         themeButtons,
         startButton,
         menuButton,
-        playAgainButton
+        playAgainButton,
+        speedSlider
       });
+      setTheme(themeOption);
     });
     //console.log(themeOption);
     console.log("current theme", currentTheme);
@@ -254,6 +256,10 @@ export function createSettingsMenu(scene, { velocity, winPopup, startButton, set
       // Settings just closed
       winPopup.isVisible = wasWinPopupVisible;
       wasWinPopupVisible = false;
+    }
+
+    if (!hasGameEverStarted && !winPopup.isVisible && !openingSettings) {
+      startButton.isVisible = true;
     }
   });
 

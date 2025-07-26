@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "@babylonjs/gui": "^8.4.0",
-    "@babylonjs/loaders": "^8.4.0"
+    "@babylonjs/loaders": "^8.4.0",
+    "@babylonjs/materials": "^8.18.0"
   },
   "devDependencies": {
     "@babylonjs/core": "^8.4.0",
