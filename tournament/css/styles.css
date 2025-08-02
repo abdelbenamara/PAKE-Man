@@ -1,0 +1,30 @@
+html,
+body {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#renderCanvas {
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+#canvasZone {
+    width: 100%;
+    height: 100%;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Valorant';
+    src: url('../fonts/Valorant.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
