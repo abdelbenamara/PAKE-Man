@@ -55,7 +55,10 @@ export function setVelocity(value: BABYLON.Vector3) {
 }
 
 export function reset(dir) {
+  const halfH = CONSTANTS.FIELD_HEIGHT / 2;
+  const ballRadius = CONSTANTS.BALL_DIAMETER / 2;
   ball.position.set(0, 0, 0);
+  ball.position.y = (Math.random() * (halfH - ballRadius) * 2) - (halfH - ballRadius);
   const baseSpeed = speed;
 
   const angle = (Math.random() - 0.5) * Math.PI / 3; // ±30 degrees
@@ -229,8 +232,8 @@ export function createGameScene(engine: BABYLON.Engine, canvas: HTMLCanvasElemen
     "ball", { diameter: CONSTANTS.BALL_DIAMETER }, scene
   );
   ball.position.set(0, 0, 0);
-
-  //let ballVelocity = new BABYLON.Vector3(CONSTANTS.INITIAL_BALL_SPEED, CONSTANTS.INITIAL_BALL_SPEED, 0);
+  const ballRadius = CONSTANTS.BALL_DIAMETER / 2;
+  ball.position.y = (Math.random() * (halfH - ballRadius) * 2) - (halfH - ballRadius);
 
   // PARTICLE EFFECTS FOR THE BALL
   const particleSystem = new BABYLON.ParticleSystem("ballTrail", 2000, scene);
@@ -391,14 +394,14 @@ export function createGameScene(engine: BABYLON.Engine, canvas: HTMLCanvasElemen
       if (leftScore >= 3 && leftScore - rightScore >= 2) {
         showWinPopup("Left");
       }
-      reset(-1);
+      reset(1);
     } else if (ball.position.x < -CONSTANTS.SCORE_BOUNDARY_X) {
       rightScore++;
       updateScoreTexture(`${leftScore} : ${rightScore}`);
       if (rightScore >= 3 && rightScore - leftScore >= 2) {
         showWinPopup("Right");
       }
-      reset(1);
+      reset(-1);
     }
 
   });
