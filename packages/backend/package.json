@@ -37,7 +37,8 @@
     "fastify": "~5.4.0",
     "fastify-plugin": "~5.0.1",
     "nodemailer": "~7.0.5",
-    "otpauth": "~9.4.0"
+    "otpauth": "~9.4.0",
+    "pino-socket": "~7.4.0"
   },
   "devDependencies": {
     "@types/node": "~24.0.14",

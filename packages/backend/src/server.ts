@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/10 17:14:23 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/06 15:31:57 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/08/18 17:29:11 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,23 +21,31 @@ import CloseWithGrace from "close-with-grace";
 import "dotenv/config";
 import Fastify from "fastify";
 import { resolve } from "node:path";
+import "pino-socket";
 
 const server = Fastify({
   logger: {
-    level: "debug",
+    level: "info",
     transport: {
-      targets: [
-        {
-          level: "info",
-          target: "@fastify/one-line-logger",
-        },
-        {
-          level: "error",
-          target: "@fastify/one-line-logger",
-          options: { destination: process.stderr.fd },
-        },
-      ],
-      dedupe: true,
+      target: "pino-socket",
+      options: {
+        address: "logstash",
+        port: 5044,
+        mode: "tcp",
+      },
+    },
+    formatters: {
+      bindings: (bindings) => {
+        return {
+          pid: bindings.pid,
+          hostname: bindings.hostname,
+          node_version: process.version,
+          application_name: "@pake-man/backend",
+        };
+      },
+      level: (label) => {
+        return { level: label.toLocaleUpperCase() };
+      },
     },
   },
 })
@@ -70,7 +78,7 @@ CloseWithGrace(
     }
 
     await server.close();
-  },
+  }
 );
 
 try {

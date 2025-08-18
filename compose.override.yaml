@@ -9,6 +9,7 @@ services:
       backend:
         aliases:
           - ${PAKE_MAN_DOMAIN_NAME}
+      elk:
 
   frontend:
     environment:
@@ -16,6 +17,7 @@ services:
       PAKE_MAN_DOMAIN_NAME: ${PAKE_MAN_DOMAIN_NAME}
     networks:
       - backend
+      - elk
     depends_on:
       - backend
 
