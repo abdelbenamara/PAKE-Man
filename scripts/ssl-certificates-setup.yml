@@ -1,0 +1,79 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: SSL certificates setup
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Set common name (CN)
+      ansible.builtin.set_fact:
+        common_name: "pake-man.fun"
+
+    - name: Create requirements tools directory
+      ansible.builtin.file:
+        path: "../data"
+        state: directory
+      become: false
+
+    - name: Set ssl certificates paths
+      ansible.builtin.set_fact:
+        ssl_common_path: "../data/{{ common_name }}"
+
+    - name: Generate an OpenSSL private keys for CA and certificate
+      community.crypto.openssl_privatekey:
+        path: "{{ ssl_common_path }}{{ item }}.key"
+      loop:
+        - ".ca"
+        - ""
+      become: false
+
+    - name: Create certificate signing request (CSR) for CA certificate
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: "{{ ssl_common_path }}.ca.key"
+        country_name: "FR"
+        state_or_province_name: "Ile-de-France"
+        locality_name: "Paris"
+        organization_name: "42"
+        organizational_unit_name: "42 School"
+        common_name: "{{ common_name }}"
+        use_common_name_for_san: false
+        basic_constraints:
+          - "CA:TRUE"
+        basic_constraints_critical: true
+        key_usage:
+          - keyCertSign
+        key_usage_critical: true
+      register: ca_csr
+
+    - name: Create self-signed CA certificate from its CSR
+      community.crypto.x509_certificate:
+        path: "{{ ssl_common_path }}.ca.crt"
+        csr_content: "{{ ca_csr.csr }}"
+        privatekey_path: "{{ ssl_common_path }}.ca.key"
+        provider: selfsigned
+      become: false
+
+    - name: Create certificate signing request (CSR) for new certificate
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: "{{ ssl_common_path }}.key"
+        common_name: "{{ common_name }}"
+        organization_name: "42"
+        organizational_unit_name: "Inception"
+        subject_alt_name:
+          - "DNS:127.0.0.1"
+          - "DNS:localhost"
+          - "DNS:{{ common_name }}"
+          - "DNS:*.{{ common_name }}"
+      register: crt_csr
+
+    - name: Generate a certificate signed with owned CA certificate
+      community.crypto.x509_certificate:
+        path: "{{ ssl_common_path }}.crt"
+        csr_content: "{{ crt_csr.csr }}"
+        ownca_not_after: "+365d"
+        ownca_not_before: "-1d"
+        ownca_path: "{{ ssl_common_path }}.ca.crt"
+        ownca_privatekey_path: "{{ ssl_common_path }}.ca.key"
+        provider: ownca
+      become: false
