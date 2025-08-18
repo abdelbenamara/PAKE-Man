@@ -6,72 +6,68 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/07 21:04:09 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/09 02:21:07 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/08/18 02:25:32 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { IncomingHttpHeaders } from "node:http";
+import { FastifyRequest } from "fastify";
 
-export namespace api {
-  export const authCookieName = "__Host-auth-token";
-  export const refreshCookieName = "__Host-refresh-token";
-  export const csrfHeaderName = "x-csrf-token";
-  export const request = async (
-    route: string,
-    method: string,
-    headers: IncomingHttpHeaders,
-    body?: Record<string, any>,
-  ) => {
-    const response = await fetch(process.env.PAKE_MAN_BACKEND_URL! + route, {
-      method,
-      headers: {
-        Authorization: headers.authorization,
-        "x-csrf-token": headers[csrfHeaderName] as string | undefined,
-        Cookie: headers.cookie,
-      },
-      body: JSON.stringify(body),
-    });
+export const accessTokenCookieName = "__Host-access-token";
+export const mfaTokenCookieName = "__Host-mfa-token";
+export const refreshTokenCookieName = "__Host-refresh-token";
+export const request = async (
+  route: string,
+  method: string,
+  req: FastifyRequest,
+  body?: Record<string, unknown>,
+) => {
+  const response = await fetch(process.env.PAKE_MAN_BACKEND_URL! + route, {
+    method,
+    headers: {
+      Authorization:
+        "Bearer " +
+        req.unsignCookie(req.cookies[accessTokenCookieName] || "").value,
+    },
+    body: JSON.stringify(body),
+  });
+  const refreshToken = req.unsignCookie(
+    req.cookies[refreshTokenCookieName] || "",
+  );
 
-    if (
-      response.status === 401 &&
-      headers[csrfHeaderName] &&
-      headers.cookie?.includes(refreshCookieName)
-    ) {
-      const refresh = await fetch(process.env.PAKE_MAN_BACKEND_URL! + route, {
+  if (response.status === 401 && refreshToken.valid) {
+    const refresh = await fetch(
+      process.env.PAKE_MAN_BACKEND_URL! + "/api/v1/auth/refresh",
+      {
         method: "POST",
+        body: JSON.stringify({
+          refresh_token: refreshToken.value,
+        }),
+      },
+    );
+
+    if (refresh.ok) {
+      const payload = await refresh.json();
+      const data = payload as { access_token: string };
+
+      return fetch(process.env.PAKE_MAN_BACKEND_URL! + route, {
+        method,
         headers: {
-          Authorization: headers.authorization,
-          "x-csrf-token": headers[csrfHeaderName] as string | undefined,
-          Cookie: headers.cookie,
+          Authorization: `Bearer ${data.access_token}`,
         },
+        body: JSON.stringify(body),
       });
-
-      if (refresh.ok) {
-        const payload = await refresh.json();
-        const fresh = payload as { access_token: string; csrf_token: string };
-
-        return fetch(process.env.PAKE_MAN_BACKEND_URL! + route, {
-          method,
-          headers: {
-            Authorization: `Bearer ${fresh.access_token}`,
-            "x-csrf-token": fresh.csrf_token,
-            Cookie: headers.cookie,
-          },
-          body: JSON.stringify(body),
-        });
-      }
     }
+  }
 
-    return Promise.resolve(response);
-  };
-  export const get = (route: string, headers: IncomingHttpHeaders) => {
-    return request(route, "GET", headers);
-  };
-  export const post = (
-    route: string,
-    headers: IncomingHttpHeaders,
-    body?: Record<string, any>,
-  ) => {
-    return request(route, "POST", headers, body);
-  };
-}
+  return Promise.resolve(response);
+};
+export const get = (route: string, req: FastifyRequest) => {
+  return request(route, "GET", req);
+};
+export const post = (
+  route: string,
+  req: FastifyRequest,
+  body?: Record<string, unknown>,
+) => {
+  return request(route, "POST", req, body);
+};

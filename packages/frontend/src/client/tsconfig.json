@@ -15,7 +15,8 @@
     "noResolve": false,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "#*": ["src/*"]
+      "#*": ["src/*"],
+      "#assets/*": ["assets/*"]
     },
     "resolveJsonModule": true,
     /* Emit */

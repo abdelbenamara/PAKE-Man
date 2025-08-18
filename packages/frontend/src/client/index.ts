@@ -6,11 +6,11 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 14:27:16 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/09 02:28:40 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/08/18 02:58:11 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { loadPong } from "#pong.ts";
+import { loadPong } from "#pong";
 import htmx from "htmx.org";
 
 function loadTournaments() {
@@ -40,51 +40,15 @@ function loadTournaments() {
   });
 }
 
-function loadProfile() {
-  document
-    .getElementById("profilePicInput")!
-    .addEventListener("change", (e) => {
-      const file = (e.target! as any).files[0];
-
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () =>
-          ((document.getElementById("displayPic")! as any).src = reader.result);
-
-        reader.readAsDataURL(file);
-      }
-    });
-
-  document.getElementById("profileForm")!.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const name = (document.getElementById("nameInput")! as any).value;
-    document.getElementById("displayName")!.textContent = name;
-  });
-
-  let twoFAEnabled = false;
-
-  document.getElementById("enable2faBtn")!.addEventListener("click", () => {
-    twoFAEnabled = !twoFAEnabled;
-    document.getElementById("enable2faBtn")!.textContent = twoFAEnabled
-      ? "Disable 2FA"
-      : "Enable 2FA";
-  });
-}
-
 function hydrate() {
   const routes = {
     "/pong": loadPong,
     "/tournaments": loadTournaments,
-    "/user/profile": loadProfile,
   };
   const path = document.location.pathname;
 
-  if (routes[path]) {
+  if (path in routes) {
     routes[path]();
-    console.info(`Hydrated path: ${path}`);
-  } else {
-    console.warn(`No script found for path: ${path}`);
   }
 }
 

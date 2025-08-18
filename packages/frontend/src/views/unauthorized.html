@@ -1,0 +1,26 @@
+<div class="mx-auto max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
+  <div class="mx-auto mb-6 h-32 w-32">
+    <img
+      src="/images/no.svg"
+      alt="Unauthorized"
+      class="h-full w-full object-contain"
+    />
+  </div>
+
+  <h1 class="mb-2 text-3xl font-bold text-red-600">Access Denied</h1>
+  <p class="mb-6 text-gray-700">
+    You are not authorized to access this resource or perform this action.
+  </p>
+
+  <div class="flex justify-center space-x-4">
+    <button
+      hx-post="/"
+      hx-target="#content"
+      hx-trigger="click"
+      hx-push-url="true"
+      class="rounded-lg bg-gray-200 px-5 py-2 text-gray-800 transition hover:bg-gray-300"
+    >
+      Go to Home
+    </button>
+  </div>
+</div>

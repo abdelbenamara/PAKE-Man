@@ -3,7 +3,6 @@ name: pake-man
 services:
   backend:
     environment:
-      PAKE_MAN_COOKIE_SECRET: ${PAKE_MAN_COOKIE_SECRET}
       PAKE_MAN_DOMAIN_NAME: ${PAKE_MAN_DOMAIN_NAME}
       PAKE_MAN_FRONTEND_URL: http://127.0.0.1:3000
     networks:
@@ -14,7 +13,6 @@ services:
   frontend:
     environment:
       PAKE_MAN_BACKEND_URL: http://${PAKE_MAN_DOMAIN_NAME}:3000
-      PAKE_MAN_COOKIE_SECRET: ${PAKE_MAN_COOKIE_SECRET}
       PAKE_MAN_DOMAIN_NAME: ${PAKE_MAN_DOMAIN_NAME}
     networks:
       - backend

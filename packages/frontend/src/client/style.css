@@ -11,3 +11,10 @@
 /* ************************************************************************** */
 
 @import "tailwindcss" source("../../");
+
+@font-face {
+  font-family: "Valorant";
+  src: url("./assets/fonts/Valorant.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}

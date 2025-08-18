@@ -1,0 +1,17 @@
+<div
+  id="cookie-banner"
+  class="fixed inset-x-0 bottom-0 flex items-center justify-between space-x-4 bg-gray-800 p-4 text-white shadow-lg"
+>
+  <p class="flex-1 text-sm">
+    We only use technically necessary cookies to ensure the proper functioning
+    of our website.
+  </p>
+  <button
+    hx-post="/cookie/consent"
+    hx-target="#cookie-banner"
+    hx-swap="outerHTML"
+    class="rounded-lg bg-blue-600 px-4 py-2 text-sm transition hover:bg-blue-700"
+  >
+    Got it
+  </button>
+</div>

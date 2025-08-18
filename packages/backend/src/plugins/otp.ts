@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/08 11:00:25 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/04 00:36:24 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/13 19:46:53 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ const fastifyOtp: FastifyPluginCallback<FastifyOTPOptions> = (
 
   fastify.decorate("hotp", hotp);
   fastify.decorateRequest("hotpValidate", hotp.validate.bind(hotp));
-  fastify.decorateReply("htopGenerate", hotp.generate.bind(hotp));
+  fastify.decorateReply("hotpGenerate", hotp.generate.bind(hotp));
 
   next();
 };
@@ -58,6 +58,6 @@ declare module "fastify" {
   }
 
   interface FastifyReply {
-    htopGenerate: HOTP["generate"];
+    hotpGenerate: HOTP["generate"];
   }
 }

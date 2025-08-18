@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/10 18:21:41 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/06 23:50:04 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/08/18 04:08:11 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ export default fp(
         openapi: "3.1.1",
         info: {
           title: "PAKE-Man backend API",
-          version: "0.1.0",
+          version: "0.2.0",
         },
         components: {
           securitySchemes: {
@@ -31,15 +31,10 @@ export default fp(
               scheme: "bearer",
               bearerFormat: "JWT",
             },
-            csrfAuth: {
-              type: "apiKey",
-              name: "x-csrf-token",
-              in: "header",
-            },
           },
         },
       },
     } as FastifySwaggerOptions);
   },
-  { name: "swagger", dependencies: ["static"] },
+  { name: "swagger", dependencies: ["etag"] }
 );

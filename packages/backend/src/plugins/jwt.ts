@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 14:38:00 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/08 20:01:35 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/07/16 13:54:27 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,27 +22,7 @@ import {
 } from "fastify";
 import fp from "fastify-plugin";
 
-export namespace jwt {
-  export type UserInfo = Pick<User, "public_id">;
-
-  export const cookieName = "__Host-refresh-token";
-  export const setAccessToken = async (
-    reply: FastifyReply,
-    payload: jwt.UserInfo,
-  ) => {
-    const accessToken = await reply.accessJwtSign(payload);
-    const refreshToken = await reply.refreshJwtSign(payload);
-    const secondsIn1Day = 86_400;
-    const epochIn1Day = Date.now() + secondsIn1Day * 1_000;
-
-    reply.cookie(cookieName, refreshToken, {
-      maxAge: secondsIn1Day,
-      expires: new Date(epochIn1Day),
-    });
-
-    return accessToken;
-  };
-}
+export type UserId = Pick<User, "public_id">;
 
 export default fp(
   async (scope) => {
@@ -55,22 +35,19 @@ export default fp(
         namespace: "access",
       } as FastifyJWTOptions)
       .register(FastifyJWTPlugin, {
-        secret: process.env.PAKE_MAN_JWT_SECRET_QUERY!,
+        secret: process.env.PAKE_MAN_JWT_SECRET_MFA!,
         sign: {
           expiresIn: "10m",
         },
         verify: {
-          extractToken: (
-            req: FastifyRequest<{ Querystring: { token?: string } }>,
-          ) => req.query.token,
+          extractToken: (req: FastifyRequest<{ Body: { token: string } }>) => {
+            return req.body.token;
+          },
         },
-        namespace: "query",
+        namespace: "mfa",
       } as FastifyJWTOptions)
       .register(FastifyJWTPlugin, {
         secret: process.env.PAKE_MAN_JWT_SECRET_REFRESH!,
-        cookie: {
-          cookieName: jwt.cookieName,
-        },
         sign: {
           expiresIn: "1d",
         },
@@ -87,10 +64,10 @@ export default fp(
         },
       )
       .decorate(
-        "authenticateQueryJwt",
+        "authenticateMfaJwt",
         async (req: FastifyRequest, reply: FastifyReply) => {
           try {
-            await req.queryJwtVerify();
+            await req.mfaJwtVerify();
           } catch (err) {
             return reply.send(err);
           }
@@ -100,20 +77,20 @@ export default fp(
         "authenticateRefreshJwt",
         async (req: FastifyRequest, reply: FastifyReply) => {
           try {
-            await req.refreshJwtVerify({ onlyCookie: true });
+            await req.refreshJwtVerify();
           } catch (err) {
             return reply.send(err);
           }
         },
       );
   },
-  { name: "jwt", dependencies: ["cookie"] },
+  { name: "jwt" },
 );
 
 declare module "@fastify/jwt" {
   interface FastifyJWT {
-    payload: jwt.UserInfo;
-    user: jwt.UserInfo | null;
+    payload: UserId;
+    user: UserId | null;
   }
 }
 
@@ -123,19 +100,19 @@ declare module "fastify" {
       FastifyJwtNamespace<{ namespace: "query" }>,
       FastifyJwtNamespace<{ namespace: "refresh" }> {
     authenticateAccessJwt: onRequestAsyncHookHandler;
-    authenticateQueryJwt: onRequestAsyncHookHandler;
+    authenticateMfaJwt: onRequestAsyncHookHandler;
     authenticateRefreshJwt: onRequestAsyncHookHandler;
   }
 
   interface FastifyRequest {
     accessJwtVerify: FastifyRequest["jwtVerify"];
-    queryJwtVerify: FastifyRequest["jwtVerify"];
+    mfaJwtVerify: FastifyRequest["jwtVerify"];
     refreshJwtVerify: FastifyRequest["jwtVerify"];
   }
 
   interface FastifyReply {
     accessJwtSign: FastifyReply["jwtSign"];
-    queryJwtSign: FastifyReply["jwtSign"];
+    mfaJwtSign: FastifyReply["jwtSign"];
     refreshJwtSign: FastifyReply["jwtSign"];
   }
 }

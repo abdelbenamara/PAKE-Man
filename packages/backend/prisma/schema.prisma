@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  previewFeatures = ["driverAdapters", "strictUndefinedChecks"]
   output          = "../dist/generated/prisma"
 }
 
@@ -13,15 +13,14 @@ datasource db {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  private_id     String   @unique @default(cuid(2))
-  public_id      String   @unique @default(nanoid())
-  google_id      String   @unique
-  email          String   @unique
-  name           String   @unique
-  picture        String
-  email_verified Boolean  @default(false)
-  hotp_enabled   Boolean  @default(false)
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  private_id   String   @unique @default(cuid(2))
+  public_id    String   @unique @default(nanoid())
+  google_id    String   @unique
+  email        String   @unique
+  name         String
+  picture      String
+  hotp_enabled Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 }

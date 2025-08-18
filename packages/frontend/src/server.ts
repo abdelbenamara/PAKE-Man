@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:51:41 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/07 00:00:34 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/08/18 02:53:45 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,16 @@ const server = Fastify({
   } as FastifyAutoloadPluginOptions)
   .register(FastifyAutoLoadPlugin, {
     dir: resolve(import.meta.dirname, "routes"),
-  } as FastifyAutoloadPluginOptions);
+  } as FastifyAutoloadPluginOptions)
+  .setNotFoundHandler((_req, reply) => {
+    reply.redirect("/404");
+  })
+  .setErrorHandler((err, _req, reply) => {
+    if (err.statusCode === 401 || err.statusCode === 403) {
+      return reply.redirect("/unauthorized");
+    }
+  });
+
 CloseWithGrace(
   {
     delay: parseInt(process.env.PAKE_MAN_SERVER_CLOSE_GRACE_DELAY!),

@@ -6,93 +6,62 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/10 21:25:03 by abenamar          #+#    #+#             */
-/*   Updated: 2025/07/09 03:06:10 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/08/18 01:17:00 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { auth } from "#utils/auth.js";
 import { FastifyPluginAsync } from "fastify";
 
 const email: FastifyPluginAsync = async (scope) => {
   scope.register(
     async (scope) => {
-      scope.register(
-        async (scope) => {
-          scope
-            .get(
-              "",
-              {
-                onRequest: [scope.authenticateQueryJwt],
-                schema: {
-                  tags: ["email"],
-                  querystring: {
-                    type: "object",
-                    properties: {
-                      token: {
-                        type: "string",
-                      },
-                    },
-                    required: ["token"],
-                  },
-                  response: {
-                    204: {
-                      description: "Email verified successfully",
-                    },
-                    ...auth.unauthorizedResponseSchema,
-                  },
-                },
-              },
-              async (req, reply) => {
-                try {
-                  const user = await scope.prisma.user.findUniqueOrThrow({
-                    where: { public_id: req.user!.public_id },
-                    select: { email_verified: true },
-                  });
+      scope
+        .post<{ Body: { token: string } }>(
+          "/verification",
+          {
+            preHandler: [scope.authenticateMfaJwt],
+            schema: { tags: ["email", "hotp"] },
+          },
+          async (req, reply) => {
+            try {
+              const user = await scope.prisma.user.update({
+                where: { public_id: req.user!.public_id },
+                data: { hotp_enabled: true },
+                select: { hotp_enabled: true },
+              });
 
-                  if (!user.email_verified) {
-                    await scope.prisma.user.update({
-                      where: { public_id: req.user!.public_id },
-                      data: { email_verified: true },
-                    });
-                  }
+              if (!user.hotp_enabled) {
+                return reply.internalServerError();
+              }
 
-                  return reply.code(204).send();
-                } catch (err) {
-                  return reply.send(err);
-                }
-              },
-            )
-            .post(
-              "/link",
-              {
-                onRequest: [scope.authenticateAccessJwt, scope.csrfProtection],
-                schema: {
-                  security: [{ bearerAuth: [], csrfAuth: [] }],
-                  tags: ["email"],
-                  response: {
-                    204: {
-                      description: "Verification email sent successfully",
-                    },
-                    ...auth.unauthorizedResponseSchema,
-                  },
-                },
-              },
-              async (req, reply) => {
-                try {
-                  const user = await scope.prisma.user.findUniqueOrThrow({
-                    where: { public_id: req.user!.public_id },
-                    select: { email: true, name: true },
-                  });
-                  const token = await reply.queryJwtSign({
-                    public_id: req.user!.public_id,
-                  });
-                  const link = `${req.protocol}://${req.host}/api/email/check?token=${token}`;
+              return reply.code(201).send();
+            } catch (err) {
+              return reply.send(err);
+            }
+          }
+        )
+        .post(
+          "/verification/link",
+          {
+            onRequest: [scope.authenticateAccessJwt],
+            schema: { security: [{ bearerAuth: [] }], tags: ["email"] },
+          },
+          async (req, reply) => {
+            try {
+              const user = await scope.prisma.user.findUniqueOrThrow({
+                where: { public_id: req.user!.public_id },
+                select: { email: true, name: true },
+              });
+              const token = await reply.mfaJwtSign({
+                public_id: req.user!.public_id,
+              });
+              const link = `${process.env.PAKE_MAN_FRONTEND_URL!}/email/verification?token=${token}`;
 
-                  await reply.sendMail({
-                    from: `no-reply@${process.env.PAKE_MAN_DOMAIN_NAME}`,
-                    to: user.email,
-                    subject: "PAKE-Man Email Verification",
-                    html: `
+              await reply.sendMail({
+                from: `no-reply@${process.env.PAKE_MAN_DOMAIN_NAME!}`,
+                to: user.email,
+                subject: "PAKE-Man Email Verification",
+                html: `
                       <!doctype html>
                       <html lang="en">
                         <head>
@@ -114,19 +83,40 @@ const email: FastifyPluginAsync = async (scope) => {
                         </body>
                       </html>
                     `,
-                  });
+              });
 
-                  return reply.code(204).send();
-                } catch (err) {
-                  return reply.send(err);
-                }
-              },
-            );
-        },
-        { prefix: "/verification" },
-      );
+              return reply.code(204).send();
+            } catch (err) {
+              return reply.send(err);
+            }
+          }
+        )
+        .post(
+          "/hotp/disable",
+          {
+            onRequest: [scope.authenticateAccessJwt],
+            schema: { security: [{ bearerAuth: [] }], tags: ["hotp"] },
+          },
+          async (req, reply) => {
+            try {
+              const user = await scope.prisma.user.update({
+                where: { public_id: req.user!.public_id },
+                data: { hotp_enabled: false },
+                select: { hotp_enabled: true },
+              });
+
+              if (user.hotp_enabled) {
+                return reply.internalServerError();
+              }
+
+              return reply.code(201).send();
+            } catch (err) {
+              return reply.send(err);
+            }
+          }
+        );
     },
-    { prefix: "/email" },
+    { prefix: "/email" }
   );
 };
 

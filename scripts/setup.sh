@@ -12,6 +12,7 @@ generate_key() {
 main() {
 	{
     echo "PAKE_MAN_COOKIE_SECRET=\"$(generate_key)\""
+    echo "PAKE_MAN_CSRF_PROTECTION_HMAC_KEY=\"$(generate_key)\""
     echo "PAKE_MAN_DOMAIN_NAME=\"pake-man.fun\""
 	} > .env
   for pkg in $parentdir/packages/*/; do \
