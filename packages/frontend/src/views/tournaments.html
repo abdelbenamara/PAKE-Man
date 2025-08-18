@@ -1,6 +1,129 @@
-<div class="container mx-auto p-6">
-  <h1 class="mb-4 text-2xl font-bold">Upcoming Tournaments</h1>
-  <ul id="upcomingList" class="mb-6 list-disc pl-5"></ul>
-  <h1 class="mb-4 text-2xl font-bold">Terminated Tournaments</h1>
-  <ul id="terminatedList" class="list-disc pl-5"></ul>
+<div class="mx-auto max-w-3xl space-y-8 p-6">
+  <!-- List of existing brackets when no ?id -->
+  <section id="brackets-list" class="hidden">
+    <h2 class="text-lg font-semibold text-gray-900">Saved Tournaments</h2>
+    <ul id="brackets-ul" class="mt-3 space-y-2"></ul>
+  </section>
+
+  <!-- Participant registration UI (shown when no ?id) -->
+  <section id="registration" class="hidden">
+    <h1 class="text-2xl font-semibold text-gray-900">Create a Tournament</h1>
+    <p class="mt-1 text-sm text-gray-600">
+      Register teams, set a name, then create the bracket.
+    </p>
+
+    <!-- Add participant -->
+    <form id="participant-form" class="mt-6 flex gap-3">
+      <input
+        id="participant-name"
+        type="text"
+        placeholder="Team name (e.g., Team PAKE)"
+        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+        required
+      />
+      <button
+        type="submit"
+        class="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+      >
+        Add
+      </button>
+    </form>
+
+    <!-- NEW: Tournament name + Create button (above Participants) -->
+    <div
+      class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+    >
+      <label class="flex-1">
+        <span class="block text-sm font-medium text-gray-700"
+          >Tournament name</span
+        >
+        <input
+          id="tournament-name"
+          type="text"
+          placeholder="3D Pong Tournament"
+          value="3D Pong Tournament"
+          class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          required
+        />
+      </label>
+
+      <button
+        id="create-tournament"
+        class="cursor-pointer rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:ring-2 focus:ring-green-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        disabled
+      >
+        Create tournament
+      </button>
+    </div>
+
+    <!-- Participants header with Clear on the right -->
+    <div class="mt-6 flex items-center justify-between">
+      <h2 class="text-lg leading-none font-semibold text-gray-800">
+        Participants
+      </h2>
+      <button
+        id="clear-participants"
+        type="button"
+        class="cursor-pointer rounded-lg border px-3 py-2 text-sm hover:bg-gray-100"
+      >
+        Clear list
+      </button>
+    </div>
+
+    <ul
+      id="participant-list"
+      class="mt-3 divide-y rounded-lg border bg-white"
+    ></ul>
+  </section>
+
+  <!-- Top actions when viewing a saved bracket (?id=...) -->
+  <section id="viewer-actions" class="hidden">
+    <div class="flex items-center gap-4">
+      <a id="back-link" href="?id" class="text-blue-700 hover:underline"
+        >Go back</a
+      >
+      <a id="delete-link" href="?id" class="text-red-700 hover:underline"
+        >Delete</a
+      >
+    </div>
+  </section>
+
+  <!-- **Perfectly empty** root for the viewer -->
+  <div id="tournaments" class="brackets-viewer rounded-2xl"></div>
+</div>
+
+<!-- Match score overlay (Tailwind-only) -->
+<div
+  id="input-mask"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50"
+>
+  <div
+    class="min-w-[280px] rounded-lg bg-gray-100 p-4 text-center shadow-2xl sm:p-5"
+  >
+    <h3 id="mask-title" class="mb-3 font-semibold"></h3>
+    <div class="space-y-2 text-left">
+      <label class="block text-sm">
+        Opponent 1:
+        <input
+          id="opponent1"
+          type="number"
+          class="mt-1 w-full rounded border px-3 py-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+        />
+      </label>
+      <label class="block text-sm">
+        Opponent 2:
+        <input
+          id="opponent2"
+          type="number"
+          class="mt-1 w-full rounded border px-3 py-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+        />
+      </label>
+    </div>
+    <button
+      id="input-submit"
+      class="mt-4 rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+    >
+      Submit
+    </button>
+  </div>
 </div>
