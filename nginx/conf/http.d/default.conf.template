@@ -3,7 +3,7 @@ server {
   listen                     [::]:80 default_server;
   http2                           on;
 
-  server_name                     127.0.0.1 ${DOMAIN_NAME} www.${DOMAIN_NAME};
+  server_name                     127.0.0.1 localhost ${DOMAIN_NAME} www.${DOMAIN_NAME};
 
   return                          301 https://$host$request_uri;
 }

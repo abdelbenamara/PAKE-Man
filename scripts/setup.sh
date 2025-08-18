@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eo pipefail
-
 scriptdir=$(dirname "$0")
 parentdir=$(cd "$scriptdir/.." && pwd)
 
@@ -28,7 +26,7 @@ main() {
 				&& pip install --upgrade ansible-core passlib \
         && ansible-galaxy collection install --upgrade \
             community.general community.crypto \
-				&& ansible-playbook $scriptdir/ssl-certificates-setup.yml --ask-become-pass
+				&& ansible-playbook $scriptdir/ssl-certificates-setup.yml
 
 	echo "Setup completed for all packages."
 }

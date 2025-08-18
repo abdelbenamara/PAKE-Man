@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eo pipefail
-
 scriptdir=$(dirname "$0")
 parentdir=$(cd "$scriptdir/.." && pwd)
 

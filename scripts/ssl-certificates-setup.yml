@@ -4,8 +4,8 @@
   hosts: localhost
   connection: local
   gather_facts: false
-  become: true
   tasks:
+
     - name: Set common name (CN)
       ansible.builtin.set_fact:
         common_name: "pake-man.fun"
@@ -14,7 +14,6 @@
       ansible.builtin.file:
         path: "../data"
         state: directory
-      become: false
 
     - name: Set ssl certificates paths
       ansible.builtin.set_fact:
@@ -26,7 +25,6 @@
       loop:
         - ".ca"
         - ""
-      become: false
 
     - name: Create certificate signing request (CSR) for CA certificate
       community.crypto.openssl_csr_pipe:
@@ -52,7 +50,6 @@
         csr_content: "{{ ca_csr.csr }}"
         privatekey_path: "{{ ssl_common_path }}.ca.key"
         provider: selfsigned
-      become: false
 
     - name: Create certificate signing request (CSR) for new certificate
       community.crypto.openssl_csr_pipe:
@@ -76,4 +73,3 @@
         ownca_path: "{{ ssl_common_path }}.ca.crt"
         ownca_privatekey_path: "{{ ssl_common_path }}.ca.key"
         provider: ownca
-      become: false

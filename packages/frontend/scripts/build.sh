@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eo pipefail
-
 main() {
   touch package-lock.json \
   && docker run \

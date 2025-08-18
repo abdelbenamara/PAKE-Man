@@ -4,7 +4,7 @@ services:
   backend:
     environment:
       PAKE_MAN_DOMAIN_NAME: ${PAKE_MAN_DOMAIN_NAME}
-      PAKE_MAN_FRONTEND_URL: http://127.0.0.1:3000
+      PAKE_MAN_FRONTEND_URL: https://127.0.0.1:8443
     networks:
       - backend
       - elk

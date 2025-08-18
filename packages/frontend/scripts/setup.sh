@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -eo pipefail
-
 generate_key() {
   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 }

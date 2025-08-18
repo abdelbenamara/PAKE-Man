@@ -22,7 +22,6 @@ type BracketsViewer = {
 
 declare global {
   interface Window {
-    __tournamentsInit: boolean;
     bracketsManager: BracketsManager;
     bracketsViewer: BracketsViewer;
   }
@@ -538,9 +537,6 @@ class Tournaments {
 }
 
 async function loadTournaments() {
-  if (window.__tournamentsInit) return; // prevents duplicate Page() inits
-
-  window.__tournamentsInit = true;
   const _tournaments = new Tournaments();
 }
 
