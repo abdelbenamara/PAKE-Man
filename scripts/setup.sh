@@ -9,6 +9,7 @@ generate_key() {
 
 main() {
 	{
+    echo "PAKE_MAN_OAUTH2_GOOGLE_CALLBACK_URI=\"https://127.0.0.1:8443/login/google/callback\""
     echo "PAKE_MAN_COOKIE_SECRET=\"$(generate_key)\""
     echo "PAKE_MAN_CSRF_PROTECTION_HMAC_KEY=\"$(generate_key)\""
     echo "PAKE_MAN_DOMAIN_NAME=\"pake-man.fun\""

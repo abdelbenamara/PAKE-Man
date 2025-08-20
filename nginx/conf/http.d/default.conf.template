@@ -17,7 +17,7 @@ server {
   ssl_certificate                 /etc/nginx/${SSL_CERTIFICATE};
   ssl_certificate_key             /etc/nginx/${SSL_KEY};
 
-  server_name                     127.0.0.1 ${DOMAIN_NAME} www.${DOMAIN_NAME};
+  server_name                     127.0.0.1 localhost ${DOMAIN_NAME} www.${DOMAIN_NAME};
 
   add_header                      Strict-Transport-Security "max-age=31536000";
 
