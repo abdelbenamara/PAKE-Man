@@ -203,7 +203,7 @@ class Tournaments {
           (p) => p.name.toLowerCase() === name.toLowerCase(),
         )
       ) {
-        this.flashInputError("This team is already registered.");
+        this.flashInputError("This player is already registered.");
         return;
       }
       this.participants.push({ id: this.nextId++, name });
