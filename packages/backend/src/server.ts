@@ -6,7 +6,7 @@
 /*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/10 17:14:23 by abenamar          #+#    #+#             */
-/*   Updated: 2025/06/07 22:44:40 by abenamar         ###   ########.fr       */
+/*   Updated: 2025/08/18 17:29:11 by abenamar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,29 +21,37 @@ import CloseWithGrace from "close-with-grace";
 import "dotenv/config";
 import Fastify from "fastify";
 import { resolve } from "node:path";
+import "pino-socket";
 
 const server = Fastify({
   logger: {
-    level: "debug",
+    level: "info",
     transport: {
-      targets: [
-        {
-          level: "info",
-          target: "@fastify/one-line-logger",
-        },
-        {
-          level: "error",
-          target: "@fastify/one-line-logger",
-          options: { destination: process.stderr.fd },
-        },
-      ],
-      dedupe: true,
+      target: "pino-socket",
+      options: {
+        address: "logstash",
+        port: 5044,
+        mode: "tcp",
+      },
+    },
+    formatters: {
+      bindings: (bindings) => {
+        return {
+          pid: bindings.pid,
+          hostname: bindings.hostname,
+          node_version: process.version,
+          application_name: "@pake-man/backend",
+        };
+      },
+      level: (label) => {
+        return { level: label.toLocaleUpperCase() };
+      },
     },
   },
 })
   .register(FastifyAutoLoadPlugin, {
     dir: resolve(import.meta.dirname, "plugins"),
-  })
+  } as FastifyAutoloadPluginOptions)
   .register(async (scope) => {
     scope
       .register(FastifyHelmetPlugin, {
@@ -54,10 +62,6 @@ const server = Fastify({
       } as FastifyRoutesStatsOptions)
       .register(FastifyAutoLoadPlugin, {
         dir: resolve(import.meta.dirname, "routes"),
-      } as FastifyAutoloadPluginOptions)
-      .register(FastifyAutoLoadPlugin, {
-        dir: resolve(import.meta.dirname, "routes", "api", "v1"),
-        options: { prefix: "/api" },
       } as FastifyAutoloadPluginOptions);
   });
 
@@ -74,7 +78,7 @@ CloseWithGrace(
     }
 
     await server.close();
-  },
+  }
 );
 
 try {

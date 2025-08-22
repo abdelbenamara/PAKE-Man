@@ -1,0 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   style.css                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abenamar <abenamar@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/11 09:14:15 by abenamar          #+#    #+#             */
+/*   Updated: 2025/05/19 14:48:40 by abenamar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+@import "tailwindcss" source("../../");
+
+@font-face {
+  font-family: "Valorant";
+  src: url("./assets/fonts/Valorant.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}

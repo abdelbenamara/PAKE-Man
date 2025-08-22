@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    /* Type Checking */
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "strict": true,
+    /* Modules */
+    "allowImportingTsExtensions": true,
+    "baseUrl": "./",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noResolve": false,
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "#*": ["src/*"],
+      "#assets/*": ["assets/*"]
+    },
+    "resolveJsonModule": true,
+    /* Emit */
+    "noEmit": true,
+    "removeComments": true,
+    /* JavaScript Support */
+    "allowJs": false,
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    /* Backwards Compatibility */
+    "noStrictGenericChecks": false,
+    /* Language and Environment */
+    "experimentalDecorators": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "moduleDetection": "force",
+    "target": "ESNext",
+    "useDefineForClassFields": false,
+    /* Completeness */
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"]
+}

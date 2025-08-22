@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  previewFeatures = ["driverAdapters", "strictUndefinedChecks"]
   output          = "../dist/generated/prisma"
 }
 
@@ -18,7 +18,7 @@ model User {
   public_id    String   @unique @default(nanoid())
   google_id    String   @unique
   email        String   @unique
-  name         String   @unique
+  name         String
   picture      String
   hotp_enabled Boolean  @default(false)
   created_at   DateTime @default(now())

@@ -1,0 +1,27 @@
+<form
+  class="mx-auto max-w-lg space-y-8 p-6 text-center"
+  hx-post="/login/mfa"
+  hx-disabled-elt="button, input"
+>
+  <label for="code" class="block text-sm font-medium text-gray-700"
+    >Security code</label
+  >
+  <input
+    id="code"
+    name="code"
+    type="text"
+    inputmode="numeric"
+    autocomplete="one-time-code"
+    pattern="[0-9]{6}"
+    maxlength="6"
+    required
+    class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-center focus:ring-2 focus:ring-blue-400 focus:outline-none"
+  />
+
+  <button
+    type="submit"
+    class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+  >
+    Verify
+  </button>
+</form>

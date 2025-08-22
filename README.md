@@ -10,20 +10,13 @@
 
 **Required** environment variables:
 
-- _PAKE_MAN_OAUTH2_GOOGLE_CALLBACK_URI_
 - _PAKE_MAN_OAUTH2_GOOGLE_CLIENT_ID_
 - _PAKE_MAN_OAUTH2_GOOGLE_CLIENT_SECRET_
 
-In **each** package directory:
+In **root** directory or **each** package directory:
 
 ```console
 $ make build
-```
-
-Or to build all packages:
-
-```console
-$ make -C packages/* build
 ```
 
 ## Usage
@@ -31,7 +24,7 @@ $ make -C packages/* build
 To **build** and **start**:
 
 ```console
-$ docker compose up [--build] [-d]
+$ docker compose up [--build] [-d] [--remove-orphans]
 ```
 
 To **monitor**:
@@ -45,6 +38,13 @@ To **stop** and **clean**:
 ```console
 $ docker compose down [--rmi all] [--volumes]
 ```
+
+To **use** and **analyze**:
+
+- Web app: https://127.0.0.1:8443
+- Pong game: https://127.0.0.1:8443/pong
+- Backend API docs: https://127.0.0.1:8443/backend/api/docs/
+- Kibana: https://127.0.0.1:8443/kibana/
 
 ## Contribute
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eo pipefail
-
 scriptdir=$(dirname "$0")
 parentdir=$(cd "$scriptdir/.." && pwd)
 
@@ -13,10 +11,9 @@ main() {
   mkdir -p "$parentdir/data"
 
   {
-    echo "PAKE_MAN_COOKIE_SECRET=\"$(generate_key)\""
-    echo "PAKE_MAN_CSRF_PROTECTION_HMAC_KEY=\"$(generate_key)\""
+    echo "PAKE_MAN_DOMAIN_NAME=\"pake-man.fun\""
     echo "PAKE_MAN_JWT_SECRET_ACCESS=\"$(generate_key)\""
-    echo "PAKE_MAN_JWT_SECRET_QUERY=\"$(generate_key)\""
+    echo "PAKE_MAN_JWT_SECRET_MFA=\"$(generate_key)\""
     echo "PAKE_MAN_JWT_SECRET_REFRESH=\"$(generate_key)\""
     echo "PAKE_MAN_MAIL_TRANSPORT_HOST=\"maildev\""
     echo "PAKE_MAN_MAIL_TRANSPORT_PORT=\"1025\""
