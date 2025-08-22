@@ -1,0 +1,22 @@
+<div class="mx-auto rounded-2xl bg-white p-8 text-center shadow-lg">
+  <div class="mx-auto mb-4 h-64 w-64">
+    <img
+      src="/images/yes.svg"
+      alt="Success"
+      class="h-full w-full object-contain"
+    />
+  </div>
+
+  <h1 class="mb-2 text-3xl font-bold text-green-600">Email Verified!</h1>
+  <p class="mb-4 text-gray-700">Thank you for verifying your email address.</p>
+
+  <button
+    hx-post="/"
+    hx-trigger="click"
+    hx-target="#content"
+    hx-push-url="true"
+    class="rounded-lg bg-green-600 px-6 py-2 text-white transition hover:bg-green-700"
+  >
+    Go to Home
+  </button>
+</div>

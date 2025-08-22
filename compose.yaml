@@ -1,0 +1,84 @@
+name: pake-man
+
+include:
+  - packages/backend/compose.yaml
+  - packages/frontend/compose.yaml
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: elasticsearch
+    restart: always
+    environment:
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.security.audit.enabled=true
+    # ulimits:
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    # ports:
+    #   - "9200:9200"
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.0
+    container_name: kibana
+    restart: always
+    environment:
+      - SERVER_BASEPATH=/kibana
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.17.0
+    container_name: logstash
+    restart: always
+    environment:
+      - LS_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ./logstash/config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro,Z
+    # ports:
+    #   - "5044:5044"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    restart: always
+    volumes:
+      - "./data/${PAKE_MAN_DOMAIN_NAME}.crt:/etc/nginx/${PAKE_MAN_DOMAIN_NAME}.crt:ro"
+      - "./data/${PAKE_MAN_DOMAIN_NAME}.key:/etc/nginx/${PAKE_MAN_DOMAIN_NAME}.key:ro"
+      - "./nginx/conf/http.d:/etc/nginx/templates:ro"
+    environment:
+      DOMAIN_NAME: ${PAKE_MAN_DOMAIN_NAME}
+      SSL_CERTIFICATE: ${PAKE_MAN_DOMAIN_NAME}.crt
+      SSL_KEY: ${PAKE_MAN_DOMAIN_NAME}.key
+    ports:
+      - "8443:443"
+    networks:
+      - backend
+      - elk
+    depends_on:
+      - frontend
+
+networks:
+  elk:
+    driver: bridge
+
+volumes:
+  elasticsearch-data:
+    driver: local

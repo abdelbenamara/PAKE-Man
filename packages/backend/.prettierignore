@@ -1,0 +1,5 @@
+.dockerignore
+.gitignore
+*.svg
+*.env
+LICENSE

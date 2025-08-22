@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters", "strictUndefinedChecks"]
+  output          = "../dist/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("PAKE_MAN_PRISMA_DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  private_id   String   @unique @default(cuid(2))
+  public_id    String   @unique @default(nanoid())
+  google_id    String   @unique
+  email        String   @unique
+  name         String
+  picture      String
+  hotp_enabled Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+}

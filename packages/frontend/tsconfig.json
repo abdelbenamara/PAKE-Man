@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    /* Type Checking */
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    /* Modules */
+    "baseUrl": "./",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "#*": ["src/*"]
+    },
+    "resolveJsonModule": true,
+    /* Emit */
+    "outDir": "dist",
+    "removeComments": true,
+    "sourceMap": true,
+    /* JavaScript Support */
+    "allowJs": false,
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    /* Backwards Compatibility */
+    "noStrictGenericChecks": false,
+    /* Language and Environment */
+    "experimentalDecorators": false,
+    "lib": ["ESNext"],
+    "moduleDetection": "auto",
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    /* Completeness */
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/client/**/*.ts"]
+}
