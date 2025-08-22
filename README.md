@@ -6,6 +6,12 @@
 
 42 ft_transcendence project
 
+## Requirements
+
+- NodeJS
+- Python
+- Docker
+
 ## Build
 
 **Required** environment variables:
@@ -43,6 +49,7 @@ To **use** and **analyze**:
 
 - Web app: https://127.0.0.1:8443
 - Pong game: https://127.0.0.1:8443/pong
+- Frontend API docs: https://127.0.0.1:8443/api/docs/
 - Backend API docs: https://127.0.0.1:8443/backend/api/docs/
 - Kibana: https://127.0.0.1:8443/kibana/
 
@@ -50,7 +57,6 @@ To **use** and **analyze**:
 
 Recommend VSCode extensions:
 
-- Build with [Lit](https://marketplace.visualstudio.com/items?itemName=runem.lit-plugin)
 - Edit with [Vim](https://marketplace.visualstudio.com/items?itemName=vscodevim.vim)
 - Format with [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - Lint with [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
